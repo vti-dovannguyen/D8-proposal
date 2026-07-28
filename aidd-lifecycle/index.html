@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VTI AI-Driven Development Lifecycle — Overview</title>
+<style>
+  :root{
+    --ink:#16274a; --ink-soft:#4a5670; --paper:#fcfbf8;
+    --rule:#d5d2c8; --rule-hair:#e6e3da;
+    --ai:#2f5fa8; --ai-bg:#eef3fa;
+    --auto:#a86414; --auto-bg:#fbf3e6;
+    --human:#2c6b4f; --human-bg:#edf5f0;
+    --gate:#a8302c; --gate-bg:#fbeeed;
+    --display:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;
+    --body:"Inter","Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#8a8778;font-family:var(--body);color:var(--ink);padding:24px 12px;-webkit-font-smoothing:antialiased}
+  .sheet{width:210mm;min-height:297mm;margin:0 auto;background:var(--paper);padding:11mm 10mm 8mm;box-shadow:0 2px 20px rgba(0,0,0,.28);display:flex;flex-direction:column}
+
+  .masthead{border-bottom:2.5px solid var(--ink);padding-bottom:5px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+  .mast-left h1{font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:.01em;line-height:1.15}
+  .mast-left h1 span{font-size:13px;font-weight:400;font-style:italic;color:var(--ink-soft)}
+  .mast-left .en{font-size:7.5px;letter-spacing:.22em;color:var(--ink-soft);margin-top:4px;text-transform:uppercase}
+  .mast-right{text-align:right;font-size:7.5px;line-height:1.7;color:var(--ink-soft);letter-spacing:.03em;white-space:nowrap}
+  .mast-right b{color:var(--ink);font-weight:700}
+
+  .thesis{display:flex;align-items:stretch;border-bottom:1px solid var(--rule);padding:7px 0 8px}
+  .thesis-step{flex:1;padding:5px 10px}
+  .thesis-step + .thesis-step{border-left:1px solid var(--rule-hair)}
+  .thesis-step .role{font-size:7px;letter-spacing:.2em;font-weight:700;margin-bottom:3px}
+  .thesis-step .what{font-family:var(--display);font-size:15px;font-weight:700;line-height:1.2}
+  .thesis-step .note{font-size:7.8px;color:var(--ink-soft);margin-top:3px;line-height:1.5}
+  .r-ai .role{color:var(--ai)} .r-auto .role{color:var(--auto)} .r-human .role{color:var(--human)}
+
+  .grid-head{display:grid;grid-template-columns:28mm 1fr 34mm 33mm 20mm;margin-top:9px;border-bottom:1.5px solid var(--ink);border-top:1.5px solid var(--ink);background:#f0eee7}
+  .grid-head div{font-size:7.5px;font-weight:700;letter-spacing:.16em;padding:4px 6px;text-align:center;text-transform:uppercase}
+  .grid-head div + div{border-left:1px solid var(--rule)}
+
+  .stage{display:grid;grid-template-columns:28mm 1fr 34mm 33mm 20mm;border-bottom:1px solid var(--rule)}
+  .stage > *{padding:6px}
+  .stage > * + *{border-left:1px solid var(--rule-hair)}
+  .col-stage{background:#f6f4ee}
+  .stage-no{font-family:var(--display);font-size:16px;font-weight:700;line-height:1}
+  .stage-name{font-family:var(--display);font-size:12px;font-weight:700;margin-top:3px;line-height:1.2}
+  .stage-obj{font-size:7.4px;color:var(--ink-soft);margin-top:5px;line-height:1.55}
+
+  .act{font-size:8px;line-height:1.45;padding:3.5px 6px;margin-bottom:3px;border-left:2.5px solid}
+  .act:last-child{margin-bottom:0}
+  .act b{font-weight:700;font-size:8.4px}
+  .act .sub{color:var(--ink-soft);font-size:7.2px;display:block;margin-top:1px;line-height:1.4}
+  .a-ai{border-color:var(--ai);background:var(--ai-bg)}
+  .a-auto{border-color:var(--auto);background:var(--auto-bg)}
+  .a-human{border-color:var(--human);background:var(--human-bg)}
+
+  .loop{border:1.2px dashed var(--auto);background:#fffdf7;padding:4px 6px;margin:4px 0 3px;font-size:7.5px;line-height:1.5;color:var(--auto)}
+  .loop b{color:var(--ink);font-weight:700;font-size:8px;letter-spacing:.03em}
+  .loop .cycle{display:block;margin-top:2px;color:var(--ink-soft)}
+
+  .track{border:1.2px dashed var(--ink-soft);background:#f7f6f1;padding:5px 7px;margin:4px 0 3px;font-size:7.5px;line-height:1.5}
+  .track > b{display:block;color:var(--ink);font-weight:700;font-size:8px;letter-spacing:.03em;margin-bottom:3px}
+  .track .tk{display:block;color:var(--ink-soft);padding-left:8px;position:relative;margin-bottom:2.5px;line-height:1.45}
+  .track .tk:last-child{margin-bottom:0}
+  .track .tk::before{content:"";position:absolute;left:0;top:4px;width:3px;height:3px;border-radius:50%}
+  .track .tk:nth-child(2)::before{background:var(--auto)}
+  .track .tk:nth-child(3)::before{background:var(--human)}
+  .track i{font-style:normal;font-weight:700}
+  .track .t-auto{color:var(--auto)} .track .t-human{color:var(--human)}
+  .hitl{font-size:8px;line-height:1.4;background:var(--human-bg);border:1px solid #c2d9cc;padding:4px 6px;margin-bottom:4px}
+  .hitl b{display:block;font-weight:700;font-size:8.4px;color:var(--human)}
+  .hitl .who{color:var(--ink-soft);font-size:7.2px}
+  .hitl-none{font-size:7.3px;color:#9a9689;padding:4px 6px;font-style:italic;line-height:1.45}
+
+  .dlv{font-size:7.8px;line-height:1.5;padding-left:9px;position:relative;margin-bottom:3.5px}
+  .dlv::before{content:"";position:absolute;left:0;top:5px;width:4px;height:4px;border:1px solid var(--ink-soft)}
+  .dlv span{color:var(--ink-soft);font-size:7px}
+
+  .gate{text-align:center;padding-top:12px}
+  .gate .badge{display:inline-block;font-family:var(--display);font-size:12px;font-weight:700;width:26px;height:26px;line-height:24px;border-radius:50%;margin-bottom:4px}
+  .gate .kind{font-size:6.5px;letter-spacing:.11em;font-weight:700;display:block;line-height:1.5;text-transform:uppercase}
+  .gate .label{font-size:7.6px;line-height:1.35;margin-top:3px}
+  .g-approve .badge{background:var(--gate-bg);border:1.8px solid var(--gate);color:var(--gate)} .g-approve .kind{color:var(--gate)}
+  .g-auto .badge{background:var(--auto-bg);border:1.8px solid var(--auto);color:var(--auto)} .g-auto .kind{color:var(--auto)}
+  .g-check .badge{background:#f0eee7;border:1.8px dashed var(--ink-soft);color:var(--ink-soft)} .g-check .kind{color:var(--ink-soft)}
+
+  .continuous{display:grid;grid-template-columns:28mm 1fr;border-bottom:1.5px solid var(--ink);background:#f6f4ee}
+  .continuous .lbl{padding:5px 6px;font-family:var(--display);font-size:9.5px;font-weight:700}
+  .continuous .body{padding:5px 8px;border-left:1px solid var(--rule-hair);font-size:8px;line-height:1.6;color:var(--ink-soft)}
+  .continuous .body b{color:var(--ink);font-weight:700}
+
+  .failrule{margin-top:7px;border:1.2px solid var(--gate);background:var(--gate-bg);padding:5px 9px;font-size:8.4px;line-height:1.6}
+  .failrule b{font-weight:700;color:var(--gate)}
+
+  .footer{margin-top:auto;padding-top:8px;border-top:1.5px solid var(--ink);display:grid;grid-template-columns:1fr 1fr 1fr}
+  .fbox{padding:0 10px}
+  .fbox:first-child{padding-left:0}
+  .fbox + .fbox{border-left:1px solid var(--rule-hair)}
+  .fbox h4{font-size:7.2px;letter-spacing:.18em;font-weight:700;margin-bottom:4px;text-transform:uppercase}
+  .fbox p{font-size:7.3px;line-height:1.7;color:var(--ink-soft)}
+  .fbox p b{color:var(--ink);font-weight:700}
+  .legend-row{display:flex;align-items:center;gap:5px;margin-bottom:2.5px;font-size:7.3px;line-height:1.5}
+  .swatch{width:9px;height:10px;flex:0 0 9px}
+  .s-ai{background:var(--ai-bg);border-left:3px solid var(--ai)}
+  .s-auto{background:var(--auto-bg);border-left:3px solid var(--auto)}
+  .s-human{background:var(--human-bg);border-left:3px solid var(--human)}
+  .s-gate{border:1.5px solid var(--gate);background:var(--gate-bg);border-radius:50%;height:9px}
+  .s-gauto{border:1.5px solid var(--auto);background:var(--auto-bg);border-radius:50%;height:9px}
+  .s-gcheck{border:1.5px dashed var(--ink-soft);background:#f0eee7;border-radius:50%;height:9px}
+
+  .maturity{margin-top:6px;font-size:7.2px;line-height:1.65;color:var(--ink-soft);border-top:1px dotted var(--rule);padding-top:5px}
+  .maturity b{color:var(--ink)}
+  .colophon{margin-top:6px;font-size:6.5px;letter-spacing:.12em;color:#9a9689;text-align:right;text-transform:uppercase}
+
+  @media print{
+    body{background:#fff;padding:0}
+    .sheet{box-shadow:none;width:auto;min-height:auto;padding:8mm}
+    @page{size:A4 portrait;margin:6mm}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="masthead">
+    <div class="mast-left">
+      <h1>VTI AI-Driven Development Lifecycle <span>— Overview</span></h1>
+      <div class="en">Standard delivery process &middot; summary sheet</div>
+    </div>
+    <div class="mast-right">
+      <b>VTI Co., Ltd.</b><br>
+      Standard Process &mdash; Overview v1.0<br>
+      Full detail: Process Definition Document (separate)
+    </div>
+  </div>
+
+  <div class="thesis">
+    <div class="thesis-step r-ai">
+      <div class="role">AI — EXECUTE</div>
+      <div class="what">AI does the work</div>
+      <div class="note">Design, implementation, test generation and self-review</div>
+    </div>
+    <div class="thesis-step r-auto">
+      <div class="role">AUTOMATION — VERIFY</div>
+      <div class="what">Automation checks it</div>
+      <div class="note">Quality a machine can verify never waits on a person</div>
+    </div>
+    <div class="thesis-step r-human">
+      <div class="role">HUMAN — DECIDE</div>
+      <div class="what">People decide</div>
+      <div class="note">Humans hold only the decisions that carry accountability — 9 per cycle</div>
+    </div>
+  </div>
+
+  <div class="grid-head">
+    <div>Stage &amp; Objective</div>
+    <div>Key Activities</div>
+    <div>Human Decision (HITL)</div>
+    <div>Deliverables</div>
+    <div>Gate</div>
+  </div>
+
+  <!-- STAGE 1 -->
+  <div class="stage">
+    <div class="col-stage">
+      <div class="stage-no">1</div>
+      <div class="stage-name">Requirement Engineering</div>
+      <div class="stage-obj">Understand the business need and define what to build</div>
+    </div>
+    <div>
+      <div class="act a-ai"><b>AI requirement engineering</b><span class="sub">Functional spec, user stories, acceptance criteria, business rules, edge cases — with AI self-review for gaps, conflicts, permissions and API consistency built in</span></div>
+      <div class="act a-ai"><b>AI test design</b><span class="sub">Unit, integration, E2E, API &middot; boundary, negative and security cases</span></div>
+      <div class="act a-ai"><b>AI technical design</b><span class="sub">Architecture, UI/UX, database, data flow, API, design rationale</span></div>
+      <div class="act a-ai"><b>Requirement package</b><span class="sub">Consolidated requirements, traceability, non-functional requirements</span></div>
+    </div>
+    <div>
+      <div class="hitl"><b>Requirement review</b><span class="who">BA / PO with the customer</span></div>
+      <div class="hitl"><b>Test design review</b><span class="who">QA &mdash; before any code exists</span></div>
+      <div class="hitl"><b>Technical design approval</b><span class="who">Tech Lead</span></div>
+    </div>
+    <div>
+      <div class="dlv">Requirement package <span>(with traceability)</span></div>
+      <div class="dlv">Test design &amp; scenarios</div>
+      <div class="dlv">Technical design document</div>
+    </div>
+    <div class="gate g-approve">
+      <span class="badge">G1</span>
+      <span class="kind">Approval</span>
+      <div class="label">Requirements approved</div>
+    </div>
+  </div>
+
+  <!-- STAGE 2 -->
+  <div class="stage">
+    <div class="col-stage">
+      <div class="stage-no">2</div>
+      <div class="stage-name">Planning</div>
+      <div class="stage-obj">Plan the work and prepare for execution</div>
+    </div>
+    <div>
+      <div class="act a-human"><b>Sprint planning (human led)</b><span class="sub">Sprint goal, capacity, risk assessment</span></div>
+      <div class="act a-ai"><b>AI task breakdown &amp; estimation</b><span class="sub">Story breakdown, dependencies, story points, backlog, definition of done</span></div>
+    </div>
+    <div>
+      <div class="hitl"><b>Team alignment</b><span class="who">Planning meeting</span></div>
+    </div>
+    <div>
+      <div class="dlv">Sprint plan &amp; backlog</div>
+    </div>
+    <div class="gate g-check">
+      <span class="badge">G2</span>
+      <span class="kind">Checkpoint</span>
+      <div class="label">Planning complete</div>
+    </div>
+  </div>
+
+  <!-- STAGE 3 -->
+  <div class="stage">
+    <div class="col-stage">
+      <div class="stage-no">3</div>
+      <div class="stage-name">AI-Assisted Development</div>
+      <div class="stage-obj">Build high-quality code with AI</div>
+    </div>
+    <div>
+      <div class="act a-ai"><b>AI implementation approach</b><span class="sub">Implementation strategy and design hints, working from the Stage 1 technical design</span></div>
+      <div class="act a-ai"><b>AI coding &amp; refactoring</b><span class="sub">Standards, best practices, readability and performance improvement</span></div>
+      <div class="act a-ai"><b>AI code review &amp; unit test generation</b><span class="sub">Business logic, security, performance, maintainability &middot; unit and component integration tests against mocks</span></div>
+      <div class="loop">
+        <b>&#9655; Iteration loop — the core of this stage</b>
+        AI implements &rarr; automation verifies &rarr; AI fixes
+        <span class="cycle">Build &middot; lint &middot; type check &middot; unit test &middot; <b>component integration</b> &middot; coverage &middot; smoke test — up to 2 cycles, then the developer decides</span>
+      </div>
+      <div class="act a-human"><b>Developer verification</b><span class="sub">Reviews the automated results and takes responsibility for the implementation</span></div>
+    </div>
+    <div>
+      <div class="hitl"><b>Developer review</b><span class="who">Assigned developer — accountable for the code</span></div>
+      <div class="hitl-none">No human wait inside the iteration loop</div>
+    </div>
+    <div>
+      <div class="dlv">Source code <span>(repository)</span></div>
+      <div class="dlv">Unit &amp; component integration tests</div>
+      <div class="dlv">Coverage report</div>
+    </div>
+    <div class="gate g-auto">
+      <span class="badge">G3</span>
+      <span class="kind">Automated</span>
+      <div class="label">Development complete<br><span style="font-size:6.8px;color:var(--ink-soft)">machine-verified, no sign-off</span></div>
+    </div>
+  </div>
+
+  <!-- STAGE 4 -->
+  <div class="stage">
+    <div class="col-stage">
+      <div class="stage-no">4</div>
+      <div class="stage-name">Quality Assurance</div>
+      <div class="stage-obj">Assure quality through human review and testing</div>
+    </div>
+    <div>
+      <div class="act a-ai"><b>Pull request &amp; AI PR review</b><span class="sub">Diff analysis, code quality, security, standards compliance</span></div>
+      <div class="track">
+        <b>&#9655; Two testing tracks</b>
+        <span class="tk"><i class="t-auto">Automated regression</i> &mdash; E2E and system integration, every build, evidence captured automatically. Grows every sprint, never re-run by hand.</span>
+        <span class="tk"><i class="t-human">Exploratory &amp; first-pass</i> &mdash; new feature paths, usability, visual correctness, unscripted data conditions. Human, by design.</span>
+      </div>
+      <div class="act a-ai"><b>Promote to automation</b><span class="sub">Manual cases that proved stable this sprint are converted into automated regression for the next &mdash; manual effort per feature shrinks, coverage compounds</span></div>
+      <div class="act a-human"><b>Tech Lead review &amp; QA decision</b><span class="sub">Code and architecture &middot; requirement-to-test coverage, defect disposition, accepted risk, release recommendation</span></div>
+    </div>
+    <div>
+      <div class="hitl"><b>Technical approval</b><span class="who">Tech Lead</span></div>
+      <div class="hitl"><b>Quality approval</b><span class="who">QA &mdash; accepts the risk, by name</span></div>
+    </div>
+    <div>
+      <div class="dlv">Automated test report <span>(CI evidence)</span></div>
+      <div class="dlv">Manual test record <span>(tester, date, build)</span></div>
+      <div class="dlv">Defect log <span>(with disposition)</span></div>
+      <div class="dlv"><b style="font-weight:700">QA report</b> <span>&mdash; judgment &amp; release recommendation</span></div>
+    </div>
+    <div class="gate g-approve">
+      <span class="badge">G4</span>
+      <span class="kind">Approval</span>
+      <div class="label">Quality assured</div>
+    </div>
+  </div>
+
+  <!-- STAGE 5 -->
+  <div class="stage">
+    <div class="col-stage">
+      <div class="stage-no">5</div>
+      <div class="stage-name">Business Acceptance</div>
+      <div class="stage-obj">Validate against the business and confirm acceptance</div>
+    </div>
+    <div>
+      <div class="act a-auto"><b>Deploy to UAT (automated)</b><span class="sub">Release build, environment setup, data preparation</span></div>
+      <div class="act a-human"><b>Business validation</b><span class="sub">Business flow verification, acceptance criteria check</span></div>
+      <div class="act a-human"><b>Acceptance &amp; sign-off</b><span class="sub">Final confirmation, change request intake</span></div>
+    </div>
+    <div>
+      <div class="hitl"><b>UAT review</b><span class="who">Customer</span></div>
+      <div class="hitl"><b>Acceptance sign-off</b><span class="who">Business owner</span></div>
+    </div>
+    <div>
+      <div class="dlv">UAT report <span>(business validation)</span></div>
+      <div class="dlv">Acceptance document <span>(sign-off)</span></div>
+    </div>
+    <div class="gate g-approve">
+      <span class="badge">G5</span>
+      <span class="kind">Approval</span>
+      <div class="label">Acceptance complete</div>
+    </div>
+  </div>
+
+  <!-- STAGE 6 -->
+  <div class="stage">
+    <div class="col-stage">
+      <div class="stage-no">6</div>
+      <div class="stage-name">Continuous Improvement</div>
+      <div class="stage-obj">Learn and improve continuously for the next iteration</div>
+    </div>
+    <div>
+      <div class="act a-ai"><b>KPI &amp; metrics review</b><span class="sub">Quality, productivity, cycle time, defect trend</span></div>
+      <div class="act a-ai"><b>AI &amp; process improvement</b><span class="sub">Retrospective analysis, prompt improvement, automation enhancement</span></div>
+      <div class="act a-ai"><b>Knowledge management</b><span class="sub">Document learnings, update standards and skill definitions — fed back into Stage 1</span></div>
+    </div>
+    <div>
+      <div class="hitl"><b>Retrospective</b><span class="who">Team</span></div>
+    </div>
+    <div>
+      <div class="dlv">Improvement report &amp; action plan</div>
+      <div class="dlv">Updated knowledge base &amp; standards</div>
+    </div>
+    <div class="gate g-check">
+      <span class="badge">G6</span>
+      <span class="kind">Checkpoint</span>
+      <div class="label">Iteration complete</div>
+    </div>
+  </div>
+
+  <div class="continuous">
+    <div class="lbl">Throughout</div>
+    <div class="body">
+      <b>Customer Q&amp;A and feedback</b> — open at any point in Stages 1&ndash;5, never queued behind a gate. &nbsp;|&nbsp;
+      <b>Assumptions and limitations disclosed early</b> — open questions, provisional decisions and known constraints are put in writing as soon as they appear.
+    </div>
+  </div>
+
+  <div class="failrule">
+    <b>When a gate fails:</b> AI generates the fix tasks and the work re-enters that stage. Up to <b>2 automatic cycles per gate</b>; beyond that a human decides the direction — send requirements back, adjust scope, or revisit the design.
+  </div>
+
+  <div class="footer">
+    <div class="fbox">
+      <h4>Legend</h4>
+      <div class="legend-row"><span class="swatch s-ai"></span>AI activity — AI executes</div>
+      <div class="legend-row"><span class="swatch s-auto"></span>Automation — machine verifies</div>
+      <div class="legend-row"><span class="swatch s-human"></span>Human activity or decision</div>
+      <div class="legend-row"><span class="swatch s-gate"></span>Approval gate — human, blocking</div>
+      <div class="legend-row"><span class="swatch s-gauto"></span>Automated gate — machine only</div>
+      <div class="legend-row"><span class="swatch s-gcheck"></span>Checkpoint — non-blocking</div>
+    </div>
+    <div class="fbox">
+      <h4>Process shape</h4>
+      <p>
+        Stages <b>6</b> &nbsp; Key activities <b>22</b> &nbsp; Human decisions <b>10</b><br>
+        Approval gates <b>3</b> (G1, G4, G5) &middot; Automated gate <b>1</b> (G3) &middot; Checkpoints <b>2</b> (G2, G6)<br><br>
+        Human judgement is reserved for decisions that carry accountability. Anything a machine can verify sits behind an automated gate, so no one waits for a review a test could have answered. Automation reports facts; the QA report accepts risk &mdash; that part does not automate.
+      </p>
+    </div>
+    <div class="fbox">
+      <h4>Tailoring</h4>
+      <p>
+        Gates apply <b>per increment</b> &mdash; a feature or a sprint &mdash; not once per project.<br><br>
+        <b>Small change or defect fix</b> &nbsp;G1 and G2 collapse into a single review; G3 and G4 always apply.<br>
+        <b>New feature</b> &nbsp;full path.<br><br>
+        Anything not applicable is <b>recorded as such</b>, not silently skipped.
+      </p>
+    </div>
+  </div>
+
+  <div class="maturity">
+    <b>On automation scope:</b> automated regression covers paths that have been specified and confirmed once; the first pass on any new feature is human. Coverage compounds sprint over sprint through the promotion step, so manual effort per feature falls &mdash; it does not reach zero. &nbsp;|&nbsp; <b>Stage-specific tooling, environments and security terms are defined per engagement in the accompanying Process Definition Document.</b>
+  </div>
+
+  <div class="colophon">VTI Co., Ltd. &middot; AI-Driven Development Lifecycle &middot; Overview</div>
+
+</div>
+</body>
+</html>
