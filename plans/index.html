@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C-PAD Admin Console — Mockup phân quyền theo Gói</title>
+<style>
+:root{
+  --navy:#1F4E78; --navy2:#2E6BA8; --bg:#F4F6F9; --card:#fff; --line:#E3E8F0;
+  --muted:#6B7684; --text:#1B2430; --green:#2E7D32; --greenbg:#E2EFDA;
+  --viewbg:#DCE7F7; --viewtx:#1F4E78; --createbg:#E2EFDA; --createtx:#2E7D32;
+  --editbg:#FFF3D6; --edittx:#8A6100; --deletebg:#FBE0D6; --deletetx:#B23A1B;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+.app{display:flex;min-height:100vh}
+/* Sidebar */
+.side{width:250px;background:var(--navy);color:#DDE6F2;flex-shrink:0;position:sticky;top:0;height:100vh;padding:0}
+.brand{padding:20px 22px;font-size:18px;font-weight:700;color:#fff;border-bottom:1px solid rgba(255,255,255,.12);display:flex;align-items:center;gap:10px}
+.brand .logo{width:30px;height:30px;background:#fff;border-radius:8px;color:var(--navy);display:grid;place-items:center;font-weight:800}
+.nav{padding:14px 0}
+.nav .grp{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#8FA6C4;padding:14px 22px 6px}
+.nav a{display:flex;gap:11px;align-items:center;padding:11px 22px;color:#C7D4E6;cursor:pointer;border-left:3px solid transparent;font-size:13.5px}
+.nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav a.active{background:rgba(255,255,255,.10);color:#fff;border-left-color:#6FB1FF;font-weight:600}
+.nav a .ic{width:18px;text-align:center}
+/* Main */
+.main{flex:1;min-width:0}
+.top{background:#fff;border-bottom:1px solid var(--line);padding:15px 30px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
+.top h1{font-size:18px;font-weight:700;color:var(--navy)}
+.top .who{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}
+.top .who .av{width:34px;height:34px;border-radius:50%;background:var(--navy2);color:#fff;display:grid;place-items:center;font-weight:700}
+.wrap{padding:26px 30px;max-width:1180px}
+.screen{display:none}
+.screen.on{display:block;animation:f .25s ease}
+@keyframes f{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.lead{color:var(--muted);margin-bottom:20px;font-size:13.5px}
+h2.sec{font-size:16px;color:var(--navy);margin:0 0 4px}
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 1px 2px rgba(20,40,80,.03)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* plan cards */
+.plan{border:2px solid var(--line);border-radius:14px;padding:20px;background:#fff;position:relative;transition:.15s;cursor:pointer}
+.plan:hover{border-color:var(--navy2);transform:translateY(-2px)}
+.plan.sel{border-color:var(--navy);box-shadow:0 6px 18px rgba(31,78,120,.14)}
+.plan h3{font-size:19px;color:var(--navy)}
+.plan .price{font-size:13px;color:var(--muted);margin:6px 0 12px}
+.plan .cnt{font-size:34px;font-weight:800;color:var(--navy)}
+.plan .cnt span{font-size:13px;font-weight:500;color:var(--muted)}
+.plan ul{list-style:none;margin-top:14px;font-size:12.5px;color:#48525f}
+.plan ul li{padding:5px 0;display:flex;gap:8px}
+.plan ul li:before{content:'✓';color:var(--green);font-weight:800}
+.plan .tag{position:absolute;top:-11px;right:16px;background:var(--navy);color:#fff;font-size:11px;padding:3px 10px;border-radius:20px}
+/* badges */
+.b{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.b.View{background:var(--viewbg);color:var(--viewtx)}
+.b.Create{background:var(--createbg);color:var(--createtx)}
+.b.Edit{background:var(--editbg);color:var(--edittx)}
+.b.Delete{background:var(--deletebg);color:var(--deletetx)}
+.chip{display:inline-block;background:#EEF2F8;color:#3a4757;border-radius:6px;padding:2px 8px;font-size:11.5px;margin:2px}
+/* table */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#F0F4FA;color:var(--navy);text-align:left;padding:10px 12px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.02em;border-bottom:2px solid var(--line);position:sticky;top:64px}
+td{padding:9px 12px;border-bottom:1px solid #EEF1F6;vertical-align:middle}
+tr:hover td{background:#FAFBFE}
+.tc{text-align:center}
+.mod{font-weight:700;color:var(--navy)}
+/* toolbar */
+.tools{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.inp{padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px;min-width:220px;font-family:inherit}
+.sel{padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px;background:#fff;font-family:inherit}
+.btn{padding:10px 18px;border:none;border-radius:9px;background:var(--navy);color:#fff;font-weight:600;cursor:pointer;font-size:13.5px;font-family:inherit}
+.btn:hover{background:#183b5c}
+.btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.btn.sm{padding:6px 12px;font-size:12.5px}
+/* toggle checkbox */
+.sw{position:relative;display:inline-block;width:38px;height:21px;vertical-align:middle}
+.sw input{display:none}
+.sl{position:absolute;inset:0;background:#CBD5E1;border-radius:20px;transition:.2s;cursor:pointer}
+.sl:before{content:'';position:absolute;width:15px;height:15px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.sw input:checked+.sl{background:var(--green)}
+.sw input:checked+.sl:before{transform:translateX(17px)}
+.pk{width:20px;height:20px;accent-color:var(--navy);cursor:pointer}
+/* steps */
+.steps{display:flex;gap:0;margin-bottom:22px}
+.steps .st{flex:1;text-align:center;position:relative;font-size:12.5px;color:var(--muted)}
+.steps .st .n{width:30px;height:30px;border-radius:50%;background:#E3E8F0;color:#6B7684;display:grid;place-items:center;margin:0 auto 6px;font-weight:700}
+.steps .st.act .n{background:var(--navy);color:#fff}
+.steps .st.done .n{background:var(--green);color:#fff}
+.steps .st:not(:last-child):after{content:'';position:absolute;top:15px;left:60%;width:80%;height:2px;background:var(--line)}
+.hint{background:#EEF5FF;border:1px solid #CFE0F6;color:#254c74;padding:12px 15px;border-radius:10px;font-size:12.5px;margin:14px 0}
+.ok{background:var(--greenbg);border:1px solid #B7D9A8;color:#2E7D32;padding:16px;border-radius:10px}
+.stat{display:flex;gap:20px;flex-wrap:wrap}
+.stat .s{flex:1;min-width:130px}
+.stat .s .v{font-size:26px;font-weight:800;color:var(--navy)}
+.stat .s .l{font-size:12px;color:var(--muted)}
+.formrow{margin-bottom:14px}
+.formrow label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:600}
+.role-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.role-tabs button{padding:9px 15px;border:1px solid var(--line);background:#fff;border-radius:9px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;color:#48525f}
+.role-tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.legend{font-size:12px;color:var(--muted);margin-top:10px}
+.collapse-h{cursor:pointer;user-select:none}
+small.mut{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="logo">C</span> C-PAD Admin</div>
+    <nav class="nav">
+      <div class="grp">Vận hành</div>
+      <a data-s="onboard" class="active"><span class="ic">🏢</span> Đăng ký Tenant mới</a>
+      <div class="grp">Cấu hình hệ thống</div>
+      <a data-s="functions"><span class="ic">🧩</span> Quản lý Functions</a>
+      <a data-s="plans"><span class="ic">📦</span> Quản lý Plans</a>
+      <a data-s="planmap"><span class="ic">🔗</span> Gán Function theo Plan</a>
+      <a data-s="roles"><span class="ic">🔐</span> Phân quyền nhóm quyền</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="top">
+      <h1 id="ttl">Đăng ký Tenant mới</h1>
+      <div class="who"><span>Intelligence Drone Admin</span><span class="av">ID</span></div>
+    </div>
+    <div class="wrap">
+
+      <!-- ONBOARD -->
+      <section class="screen on" id="onboard">
+        <p class="lead">Quy trình khởi tạo khách hàng mới: nhập thông tin → chọn gói → hệ thống tự sinh bộ quyền (entitlement) và tài khoản quản trị.</p>
+        <div class="steps">
+          <div class="st done"><div class="n">1</div>Thông tin KH</div>
+          <div class="st act"><div class="n">2</div>Chọn gói</div>
+          <div class="st"><div class="n">3</div>Sinh entitlement</div>
+          <div class="st"><div class="n">4</div>Tạo Customer Admin</div>
+        </div>
+        <div class="card">
+          <div class="grid2">
+            <div class="formrow"><label>Tên khách hàng / Công ty</label><input class="inp" style="width:100%" value="Công ty Xây dựng ABC"></div>
+            <div class="formrow"><label>Mã Tenant</label><input class="inp" style="width:100%" value="abc-corp"></div>
+            <div class="formrow"><label>Email Customer Admin</label><input class="inp" style="width:100%" value="admin@abc-corp.jp"></div>
+            <div class="formrow"><label>Ngày kích hoạt</label><input class="inp" style="width:100%" value="2026-08-01"></div>
+          </div>
+        </div>
+        <h2 class="sec">Chọn gói subscription</h2>
+        <p class="lead">Số function của mỗi gói được tính trực tiếp từ ma trận chức năng.</p>
+        <div class="grid3" id="planCards"></div>
+        <div style="text-align:right"><button class="btn" onclick="provision()">Khởi tạo Tenant →</button></div>
+        <div id="provResult" style="margin-top:18px"></div>
+      </section>
+
+      <!-- FUNCTIONS -->
+      <section class="screen" id="functions">
+        <p class="lead">Danh mục toàn bộ chức năng của hệ thống, phân theo Module / Sub-module, mỗi function gắn một Action (View / Create / Edit / Delete).</p>
+        <div class="stat card" id="fnStat"></div>
+        <div class="tools">
+          <input class="inp" id="fnSearch" placeholder="🔍 Tìm theo tên function..." oninput="renderFns()">
+          <select class="sel" id="fnMod" onchange="renderFns()"></select>
+          <select class="sel" id="fnAct" onchange="renderFns()">
+            <option value="">Mọi Action</option><option>View</option><option>Create</option><option>Edit</option><option>Delete</option>
+          </select>
+          <button class="btn sm">+ Thêm function</button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table><thead><tr><th style="width:50px">ID</th><th>Module</th><th>Sub-module</th><th>Tên chức năng</th><th style="width:90px">Action</th><th class="tc" style="width:150px">Có trong gói</th></tr></thead>
+          <tbody id="fnBody"></tbody></table>
+        </div>
+      </section>
+
+      <!-- PLANS -->
+      <section class="screen" id="plans">
+        <p class="lead">Ba gói có quan hệ bao hàm tăng dần: BASIC ⊂ STANDARD ⊂ OPTION. Chỉnh giá và mô tả tại đây; phạm vi function chỉnh ở màn "Gán Function theo Plan".</p>
+        <div class="grid3" id="planMng"></div>
+        <div class="hint">💡 Module <b>Intelligence Drone</b> (13 function nội bộ: quản lý khách hàng, báo cáo, log, cài đặt) không thuộc gói nào — chỉ nhà cung cấp truy cập.</div>
+      </section>
+
+      <!-- PLAN MAP -->
+      <section class="screen" id="planmap">
+        <p class="lead">Bật/tắt từng function cho từng gói. Đây chính là ma trận Chức năng × Gói — nguồn để sinh entitlement khi đăng ký tenant.</p>
+        <div class="tools">
+          <select class="sel" id="pmMod" onchange="renderMap()"></select>
+          <span class="legend">Tick = function được bật trong gói.</span>
+          <button class="btn sm ghost" style="margin-left:auto">Lưu thay đổi</button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table><thead><tr><th style="width:50px">ID</th><th>Function</th><th style="width:80px">Action</th><th class="tc" style="width:90px">BASIC</th><th class="tc" style="width:90px">STANDARD</th><th class="tc" style="width:90px">OPTION</th></tr></thead>
+          <tbody id="mapBody"></tbody></table>
+        </div>
+      </section>
+
+      <!-- ROLES -->
+      <section class="screen" id="roles">
+        <p class="lead">Phân quyền theo nhóm quyền (RBAC). Với mỗi Role, chọn Action được phép trên từng Module. Quyền chỉ có hiệu lực khi function đã được gói bật — <b>Quyền hiệu lực = Gói ∩ Role</b>.</p>
+        <div class="role-tabs" id="roleTabs"></div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table><thead><tr><th>Module / Nhóm chức năng</th><th class="tc" style="width:80px">View</th><th class="tc" style="width:80px">Create</th><th class="tc" style="width:80px">Edit</th><th class="tc" style="width:80px">Delete</th></tr></thead>
+          <tbody id="roleBody"></tbody></table>
+        </div>
+        <div class="hint" id="roleHint"></div>
+      </section>
+
+    </div>
+  </main>
+</div>
+<script>
+const DATA = [{"id": 1, "m": "Chung", "s": "Xác thực", "vn": "Đăng nhập", "a": "View", "B": true, "S": true, "O": true}, {"id": 2, "m": "Chung", "s": "Xác thực", "vn": "Đăng xuất", "a": "View", "B": true, "S": true, "O": true}, {"id": 3, "m": "Chung", "s": "Xác thực", "vn": "Cấp lại mật khẩu", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 4, "m": "Chung", "s": "Xác thực", "vn": "Đăng nhập・Xác thực", "a": "View", "B": true, "S": true, "O": true}, {"id": 5, "m": "Chung", "s": "Xác thực", "vn": "Quản lý phiên", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 6, "m": "Chung", "s": "Xác thực", "vn": "Hash hoá mật khẩu", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 7, "m": "Chung", "s": "Xác thực", "vn": "Quản lý role và quyền", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 8, "m": "Chung", "s": "Dashboard", "vn": "Hiển thị dashboard", "a": "View", "B": true, "S": true, "O": true}, {"id": 9, "m": "Intelligence Drone", "s": "Dashboard", "vn": "Dashboard tình hình sử dụng", "a": "View", "B": false, "S": false, "O": false}, {"id": 10, "m": "Chung", "s": "Quản lý hiện trường", "vn": "Màn hình danh sách hiện trường", "a": "View", "B": true, "S": true, "O": true}, {"id": 11, "m": "Chung", "s": "Quản lý hiện trường", "vn": "Tìm kiếm hiện trường", "a": "View", "B": true, "S": true, "O": true}, {"id": 12, "m": "Chung", "s": "Quản lý hiện trường", "vn": "Tạo mới project", "a": "Create", "B": false, "S": true, "O": true}, {"id": 13, "m": "Chung", "s": "Quản lý hiện trường", "vn": "Nhân bản hiện trường", "a": "Create", "B": false, "S": true, "O": true}, {"id": 14, "m": "Chung", "s": "Quản lý hiện trường", "vn": "Màn hình chi tiết hiện trường", "a": "View", "B": false, "S": true, "O": true}, {"id": 15, "m": "Chung", "s": "Quản lý hiện trường", "vn": "Chỉnh sửa thông tin hiện trường", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 16, "m": "Chung", "s": "Quản lý hiện trường", "vn": "Vô hiệu hoá hiện trường", "a": "Delete", "B": false, "S": true, "O": true}, {"id": 17, "m": "Chung", "s": "Quản lý hiện trường", "vn": "Xử lý hoàn thành hiện trường", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 18, "m": "Chung", "s": "Quản lý hiện trường", "vn": "Tìm kiếm hiện trường", "a": "View", "B": false, "S": true, "O": true}, {"id": 19, "m": "Chung", "s": "Quản lý hiện trường", "vn": "Quản lý trạng thái hiện trường", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 20, "m": "Chung", "s": "Quản lý tài khoản", "vn": "Danh sách tài khoản", "a": "View", "B": false, "S": true, "O": true}, {"id": 21, "m": "Chung", "s": "Quản lý tài khoản", "vn": "Tạo mới tài khoản", "a": "Create", "B": false, "S": true, "O": true}, {"id": 22, "m": "Chung", "s": "Quản lý tài khoản", "vn": "Chỉnh sửa tài khoản", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 23, "m": "Chung", "s": "Quản lý tài khoản", "vn": "Vô hiệu hoá tài khoản", "a": "Delete", "B": false, "S": true, "O": true}, {"id": 24, "m": "Chung", "s": "Quản lý tài khoản", "vn": "Đặt lại mật khẩu", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 25, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Danh sách mặt tường/bản vẽ", "a": "View", "B": false, "S": true, "O": true}, {"id": 26, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Tạo mới bản vẽ", "a": "Create", "B": false, "S": true, "O": true}, {"id": 27, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Chi tiết bản vẽ", "a": "View", "B": false, "S": true, "O": true}, {"id": 28, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Chỉnh sửa thông tin bản vẽ", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 29, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Tạo PDF", "a": "View", "B": false, "S": true, "O": true}, {"id": 30, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Tạo dữ liệu Excel", "a": "View", "B": false, "S": true, "O": true}, {"id": 31, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Tải PDF・Chia sẻ dữ liệu", "a": "View", "B": false, "S": true, "O": true}, {"id": 32, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Xoá bản vẽ", "a": "Delete", "B": false, "S": true, "O": true}, {"id": 33, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Chỉnh sửa thông tin bản vẽ", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 34, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Tải lên dữ liệu nhập bản vẽ", "a": "Create", "B": false, "S": true, "O": true}, {"id": 35, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Chuyển đổi định dạng bản vẽ", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 36, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Đồng bộ dữ liệu bản vẽ", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 37, "m": "Chung", "s": "Quản lý marker", "vn": "Danh sách marker", "a": "View", "B": false, "S": true, "O": true}, {"id": 38, "m": "Chung", "s": "Quản lý marker", "vn": "Đăng ký marker", "a": "Create", "B": false, "S": true, "O": true}, {"id": 39, "m": "Chung", "s": "Quản lý marker", "vn": "Sửa marker", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 40, "m": "Chung", "s": "Quản lý marker", "vn": "Chỉnh sửa marker hàng loạt", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 41, "m": "Chung", "s": "Quản lý marker", "vn": "Lưu thứ tự sắp xếp", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 42, "m": "Chung", "s": "Quản lý marker", "vn": "Xoá marker", "a": "Delete", "B": false, "S": true, "O": true}, {"id": 43, "m": "Chung", "s": "Quản lý marker", "vn": "Đồng bộ marker", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 44, "m": "Intelligence Drone", "s": "Quản lý thông tin khách hàng", "vn": "Danh sách/chi tiết thông tin khách hàng", "a": "View", "B": false, "S": false, "O": false}, {"id": 45, "m": "Intelligence Drone", "s": "Quản lý thông tin khách hàng", "vn": "Phân công phụ trách sales", "a": "View", "B": false, "S": false, "O": false}, {"id": 46, "m": "Intelligence Drone", "s": "Quản lý thông tin khách hàng", "vn": "Tìm kiếm theo khách hàng", "a": "View", "B": false, "S": false, "O": false}, {"id": 47, "m": "Intelligence Drone", "s": "Quản lý thông tin khách hàng", "vn": "Đăng ký điều khoản sử dụng", "a": "Create", "B": false, "S": false, "O": false}, {"id": 48, "m": "Chung", "s": "Quản lý hiện trường", "vn": "Lưu trữ project cũ", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 49, "m": "Chung", "s": "Quản lý hiện trường", "vn": "Phục hồi dữ liệu lưu trữ", "a": "Edit", "B": false, "S": true, "O": true}, {"id": 50, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Xuất file JWW (CAD) kèm marker", "a": "View", "B": false, "S": false, "O": true}, {"id": 51, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Hiển thị danh sách ảnh trong 1 bản vẽ", "a": "View", "B": false, "S": false, "O": true}, {"id": 52, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Lấy danh sách ảnh", "a": "View", "B": false, "S": false, "O": true}, {"id": 53, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Xoá ảnh", "a": "Delete", "B": false, "S": false, "O": true}, {"id": 54, "m": "Chung", "s": "Quản lý bản vẽ", "vn": "Xuất Excel danh sách ảnh", "a": "View", "B": false, "S": false, "O": true}, {"id": 55, "m": "Chung", "s": "Quản lý marker", "vn": "Import marker hàng loạt", "a": "Create", "B": false, "S": true, "O": true}, {"id": 56, "m": "Chung", "s": "Quản lý marker", "vn": "Xử lý import marker hàng loạt", "a": "Create", "B": false, "S": true, "O": true}, {"id": 57, "m": "Intelligence Drone", "s": "Báo cáo", "vn": "Hiển thị thống kê báo cáo", "a": "View", "B": false, "S": false, "O": false}, {"id": 58, "m": "Intelligence Drone", "s": "Báo cáo", "vn": "Báo cáo tình hình sử dụng", "a": "View", "B": false, "S": false, "O": false}, {"id": 59, "m": "Intelligence Drone", "s": "Báo cáo", "vn": "Màn hình quản lý log", "a": "View", "B": false, "S": false, "O": false}, {"id": 60, "m": "Intelligence Drone", "s": "Báo cáo", "vn": "Quản lý log thao tác", "a": "View", "B": false, "S": false, "O": false}, {"id": 61, "m": "Intelligence Drone", "s": "Cài đặt hệ thống", "vn": "Cài đặt chung hệ thống", "a": "View", "B": false, "S": false, "O": false}, {"id": 62, "m": "Intelligence Drone", "s": "Cài đặt hệ thống", "vn": "Quản lý cài đặt chung hệ thống", "a": "View", "B": false, "S": false, "O": false}, {"id": 63, "m": "Intelligence Drone", "s": "Cài đặt hệ thống", "vn": "Cài đặt template xuất", "a": "View", "B": false, "S": false, "O": false}, {"id": 64, "m": "Intelligence Drone", "s": "Cài đặt hệ thống", "vn": "Quản lý template xuất", "a": "View", "B": false, "S": false, "O": false}, {"id": 65, "m": "Tablet / Browser", "s": "Xác thực", "vn": "Đăng nhập app", "a": "View", "B": true, "S": true, "O": true}, {"id": 66, "m": "Tablet / Browser", "s": "Xác thực", "vn": "Chuyển đổi tài khoản", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 67, "m": "Tablet / Browser", "s": "Xác thực", "vn": "Đăng xuất", "a": "View", "B": true, "S": true, "O": true}, {"id": 68, "m": "Tablet / Browser", "s": "Xác thực", "vn": "Đăng nhập・Xác thực trên tablet", "a": "View", "B": true, "S": true, "O": true}, {"id": 69, "m": "Tablet / Browser", "s": "Xác thực", "vn": "Duy trì phiên trong 5 ngày", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 70, "m": "Tablet / Browser", "s": "Màn hình Home", "vn": "Trang chủ app", "a": "View", "B": true, "S": true, "O": true}, {"id": 71, "m": "Tablet / Browser", "s": "Màn hình Home", "vn": "Hướng dẫn sử dụng", "a": "View", "B": true, "S": true, "O": true}, {"id": 72, "m": "Tablet / Browser", "s": "Danh sách project", "vn": "Danh sách project", "a": "View", "B": true, "S": true, "O": true}, {"id": 73, "m": "Tablet / Browser", "s": "Danh sách project", "vn": "Chọn project", "a": "View", "B": true, "S": true, "O": true}, {"id": 74, "m": "Tablet / Browser", "s": "Tải bản vẽ", "vn": "Tải bản vẽ", "a": "View", "B": true, "S": true, "O": true}, {"id": 75, "m": "Tablet / Browser", "s": "Tải bản vẽ", "vn": "Lấy bản vẽ", "a": "View", "B": true, "S": true, "O": true}, {"id": 76, "m": "Tablet / Browser", "s": "Tải bản vẽ", "vn": "Cache bản vẽ local", "a": "View", "B": true, "S": true, "O": true}, {"id": 77, "m": "Tablet / Browser", "s": "Đánh dấu lên bản vẽ (図落とし)", "vn": "Chế độ ghi", "a": "View", "B": true, "S": true, "O": true}, {"id": 78, "m": "Tablet / Browser", "s": "Đánh dấu lên bản vẽ (図落とし)", "vn": "Chức năng đếm", "a": "View", "B": true, "S": true, "O": true}, {"id": 79, "m": "Tablet / Browser", "s": "Đánh dấu lên bản vẽ (図落とし)", "vn": "Chọn ký hiệu marker", "a": "View", "B": true, "S": true, "O": true}, {"id": 80, "m": "Tablet / Browser", "s": "Đánh dấu lên bản vẽ (図落とし)", "vn": "Bàn phím số cho số lượng", "a": "View", "B": true, "S": true, "O": true}, {"id": 81, "m": "Tablet / Browser", "s": "Đánh dấu lên bản vẽ (図落とし)", "vn": "Di chuyển vị trí bàn phím số", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 82, "m": "Tablet / Browser", "s": "Đánh dấu lên bản vẽ (図落とし)", "vn": "Đặt marker", "a": "Create", "B": true, "S": true, "O": true}, {"id": 83, "m": "Tablet / Browser", "s": "Đánh dấu lên bản vẽ (図落とし)", "vn": "Tự động lưu", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 84, "m": "Tablet / Browser", "s": "Đánh dấu lên bản vẽ (図落とし)", "vn": "Nút lưu", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 85, "m": "Tablet / Browser", "s": "Dữ liệu marker", "vn": "Mục dữ liệu marker", "a": "View", "B": true, "S": true, "O": true}, {"id": 86, "m": "Tablet / Browser", "s": "Dữ liệu marker", "vn": "Tự động cấp số thứ tự", "a": "View", "B": true, "S": true, "O": true}, {"id": 87, "m": "Tablet / Browser", "s": "Dữ liệu marker", "vn": "Nhập kích thước", "a": "View", "B": true, "S": true, "O": true}, {"id": 88, "m": "Tablet / Browser", "s": "Dữ liệu marker", "vn": "Cài đặt cỡ chữ", "a": "View", "B": true, "S": true, "O": true}, {"id": 89, "m": "Tablet / Browser", "s": "Chỉnh sửa marker", "vn": "Chế độ chỉnh sửa", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 90, "m": "Tablet / Browser", "s": "Chỉnh sửa marker", "vn": "Chỉnh sửa số lượng・kích thước", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 91, "m": "Tablet / Browser", "s": "Chỉnh sửa marker", "vn": "Xoá marker", "a": "Delete", "B": true, "S": true, "O": true}, {"id": 92, "m": "Tablet / Browser", "s": "Chỉnh sửa marker", "vn": "Di chuyển D&D (chỉ trong chế độ chỉnh sửa)", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 93, "m": "Tablet / Browser", "s": "Hiển thị bản vẽ", "vn": "Zoom・Pan", "a": "View", "B": true, "S": true, "O": true}, {"id": 94, "m": "Tablet / Browser", "s": "Hiển thị bản vẽ", "vn": "Tìm kiếm bản vẽ", "a": "View", "B": true, "S": true, "O": true}, {"id": 95, "m": "Tablet / Browser", "s": "Hiển thị bản vẽ", "vn": "Chuyển đổi bản vẽ", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 96, "m": "Tablet / Browser", "s": "Hiển thị bản vẽ", "vn": "Ẩn sidebar", "a": "View", "B": true, "S": true, "O": true}, {"id": 97, "m": "Tablet / Browser", "s": "Upload", "vn": "Tải lên dữ liệu nhập", "a": "Create", "B": true, "S": true, "O": true}, {"id": 98, "m": "Tablet / Browser", "s": "Upload", "vn": "Tải lên ảnh bản vẽ", "a": "Create", "B": true, "S": true, "O": true}, {"id": 99, "m": "Tablet / Browser", "s": "Upload", "vn": "Tải lên tích hợp (1 nút)", "a": "Create", "B": true, "S": true, "O": true}, {"id": 100, "m": "Tablet / Browser", "s": "Upload", "vn": "Gửi dữ liệu nhập", "a": "View", "B": true, "S": true, "O": true}, {"id": 101, "m": "Tablet / Browser", "s": "Upload", "vn": "Tiếp tục tải lên", "a": "Create", "B": true, "S": true, "O": true}, {"id": 102, "m": "Tablet / Browser", "s": "Upload", "vn": "Giới hạn thời gian tải lên", "a": "Create", "B": true, "S": true, "O": true}, {"id": 103, "m": "Tablet / Browser", "s": "Đồng bộ Cloud", "vn": "Đồng bộ với thiết bị khác", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 104, "m": "Tablet / Browser", "s": "Đồng bộ Cloud", "vn": "Tải dữ liệu từ thiết bị khác", "a": "View", "B": true, "S": true, "O": true}, {"id": 105, "m": "Tablet / Browser", "s": "Đồng bộ Cloud", "vn": "Đồng bộ dữ liệu", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 106, "m": "Tablet / Browser", "s": "Đồng bộ Cloud", "vn": "Giải quyết xung đột", "a": "View", "B": true, "S": true, "O": true}, {"id": 107, "m": "Tablet / Browser", "s": "UI hệ thống", "vn": "Menu hamburger", "a": "View", "B": true, "S": true, "O": true}, {"id": 108, "m": "Tablet / Browser", "s": "UI hệ thống", "vn": "Nút xuất", "a": "View", "B": true, "S": true, "O": true}, {"id": 109, "m": "Tablet / Browser", "s": "UI hệ thống", "vn": "Cài đặt app", "a": "View", "B": true, "S": true, "O": true}, {"id": 110, "m": "Tablet / Browser", "s": "UI hệ thống", "vn": "Thông tin tài khoản", "a": "View", "B": true, "S": true, "O": true}, {"id": 111, "m": "Tablet / Browser", "s": "Chế độ nghiệp vụ", "vn": "Cài đặt hiển thị số lượng", "a": "View", "B": true, "S": true, "O": true}, {"id": 112, "m": "Tablet / Browser", "s": "Chế độ nghiệp vụ", "vn": "Cài đặt hiển thị số thứ tự", "a": "View", "B": true, "S": true, "O": true}, {"id": 113, "m": "Tablet / Browser", "s": "Offline", "vn": "Thiết kế offline-first", "a": "View", "B": true, "S": true, "O": true}, {"id": 114, "m": "Tablet / Browser", "s": "Offline", "vn": "Lưu trữ DB local", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 115, "m": "Tablet / Browser", "s": "Offline", "vn": "Sao lưu・Phục hồi local", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 116, "m": "Tablet / Browser", "s": "Đánh dấu lên bản vẽ (図落とし)", "vn": "Chụp ảnh・Chèn ảnh", "a": "Create", "B": true, "S": true, "O": true}, {"id": 117, "m": "Tablet / Browser", "s": "Đánh dấu lên bản vẽ (図落とし)", "vn": "Chỉnh sửa ảnh (tag・mô tả)", "a": "Edit", "B": true, "S": true, "O": true}, {"id": 118, "m": "Tablet / Browser", "s": "Chỉnh sửa marker", "vn": "Chế độ phạm vi", "a": "View", "B": true, "S": true, "O": true}, {"id": 119, "m": "Tablet / Browser", "s": "Chỉnh sửa marker", "vn": "Chế độ chọn nhiều", "a": "View", "B": true, "S": true, "O": true}, {"id": 120, "m": "Tablet / Browser", "s": "Dashboard", "vn": "Thống kê đếm", "a": "View", "B": true, "S": true, "O": true}, {"id": 121, "m": "Tablet / Browser", "s": "Dashboard", "vn": "Biểu đồ lỗi theo bản vẽ・Phân bố theo loại", "a": "View", "B": true, "S": true, "O": true}, {"id": 122, "m": "Tablet / Browser", "s": "Dashboard", "vn": "Chi tiết lỗi", "a": "View", "B": true, "S": true, "O": true}, {"id": 123, "m": "Tablet / Browser", "s": "Dashboard", "vn": "Danh sách chi tiết marker", "a": "View", "B": true, "S": true, "O": true}, {"id": 124, "m": "Tablet / Browser", "s": "Dashboard", "vn": "Lấy dữ liệu từ thiết bị", "a": "View", "B": true, "S": true, "O": true}, {"id": 125, "m": "Tablet / Browser", "s": "Dashboard", "vn": "Lấy dữ liệu từ server", "a": "View", "B": true, "S": true, "O": true}, {"id": 126, "m": "Tablet / Browser", "s": "Vẽ hình", "vn": "Vẽ hình", "a": "View", "B": true, "S": true, "O": true}, {"id": 127, "m": "Tablet / Browser", "s": "Hiển thị bản vẽ", "vn": "Chức năng nhận biết vị trí đang zoom (mini-map)", "a": "View", "B": true, "S": true, "O": true}];
+const PLANS=[
+ {k:'B',name:'BASIC',price:'App hiện trường',desc:['App Tablet/Browser','Đánh dấu marker (図落とし)','Upload & Offline','Dashboard cơ bản']},
+ {k:'S',name:'STANDARD',price:'+ Web console quản lý',tag:'Phổ biến',desc:['Toàn bộ BASIC','Quản lý hiện trường','Quản lý tài khoản','Quản lý bản vẽ & marker']},
+ {k:'O',name:'OPTION',price:'+ Nâng cao CAD/ảnh',desc:['Toàn bộ STANDARD','Xuất JWW/CAD kèm marker','Quản lý danh sách ảnh','Xuất Excel ảnh']},
+];
+const cnt=k=>DATA.filter(d=>d[k]).length;
+const MODS=[...new Set(DATA.map(d=>d.m))];
+
+// nav
+document.querySelectorAll('.nav a').forEach(a=>a.onclick=()=>{
+  document.querySelectorAll('.nav a').forEach(x=>x.classList.remove('active'));
+  a.classList.add('active');
+  const s=a.dataset.s;
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));
+  document.getElementById(s).classList.add('on');
+  document.getElementById('ttl').textContent=a.textContent.trim();
+});
+
+// onboard plan cards
+let selPlan='S';
+function planCards(){
+  document.getElementById('planCards').innerHTML=PLANS.map(p=>`
+   <div class="plan ${p.k===selPlan?'sel':''}" onclick="selPlan='${p.k}';planCards()">
+     ${p.tag?`<span class="tag">${p.tag}</span>`:''}
+     <h3>${p.name}</h3><div class="price">${p.price}</div>
+     <div class="cnt">${cnt(p.k)} <span>functions</span></div>
+     <ul>${p.desc.map(x=>`<li>${x}</li>`).join('')}</ul>
+   </div>`).join('');
+}
+function provision(){
+  const p=PLANS.find(x=>x.k===selPlan);
+  document.getElementById('provResult').innerHTML=`<div class="ok">
+   <b>✓ Đã khởi tạo Tenant "abc-corp" với gói ${p.name}.</b><br>
+   • Sinh <b>${cnt(selPlan)} entitlement</b> (function được bật) cho tenant.<br>
+   • Tạo tài khoản <b>Customer Admin</b> (admin@abc-corp.jp), đã gửi email kích hoạt.<br>
+   • Customer Admin có thể tự tạo nhân viên hiện trường trong phạm vi gói.
+  </div>`;
+}
+
+// functions screen
+function fillSel(id,ph){document.getElementById(id).innerHTML=`<option value="">${ph}</option>`+MODS.map(m=>`<option>${m}</option>`).join('')}
+function renderFns(){
+  const q=document.getElementById('fnSearch').value.toLowerCase();
+  const m=document.getElementById('fnMod').value, a=document.getElementById('fnAct').value;
+  const rows=DATA.filter(d=>(!q||d.vn.toLowerCase().includes(q))&&(!m||d.m===m)&&(!a||d.a===a));
+  document.getElementById('fnBody').innerHTML=rows.map(d=>`<tr>
+    <td>${d.id}</td><td class="mod">${d.m}</td><td>${d.s}</td><td>${d.vn}</td>
+    <td><span class="b ${d.a}">${d.a}</span></td>
+    <td class="tc">${d.B?'<span class="chip">B</span>':''}${d.S?'<span class="chip">S</span>':''}${d.O?'<span class="chip">O</span>':''}</td></tr>`).join('')
+    || '<tr><td colspan="6" style="text-align:center;color:#999;padding:24px">Không có kết quả</td></tr>';
+  document.getElementById('fnStat').innerHTML=`
+   <div class="s"><div class="v">${DATA.length}</div><div class="l">Tổng function</div></div>
+   <div class="s"><div class="v">${MODS.length}</div><div class="l">Module</div></div>
+   <div class="s"><div class="v" style="color:#2E7D32">${DATA.filter(d=>d.a==='View').length}</div><div class="l">View</div></div>
+   <div class="s"><div class="v" style="color:#8A6100">${DATA.filter(d=>d.a==='Edit').length}</div><div class="l">Edit</div></div>
+   <div class="s"><div class="v" style="color:#1F4E78">${DATA.filter(d=>d.a==='Create').length}</div><div class="l">Create</div></div>
+   <div class="s"><div class="v" style="color:#B23A1B">${DATA.filter(d=>d.a==='Delete').length}</div><div class="l">Delete</div></div>`;
+}
+
+// plans manage
+function planMng(){
+  document.getElementById('planMng').innerHTML=PLANS.map(p=>`
+   <div class="plan ${p.tag?'sel':''}">${p.tag?`<span class="tag">${p.tag}</span>`:''}
+     <h3>${p.name}</h3><div class="price">${p.price}</div>
+     <div class="cnt">${cnt(p.k)} <span>/ ${DATA.length} functions</span></div>
+     <div class="formrow" style="margin-top:14px"><label>Giá / tháng (JPY)</label><input class="inp" style="width:100%" value="${p.k==='B'?'30,000':p.k==='S'?'60,000':'90,000'}"></div>
+     <button class="btn sm ghost" style="width:100%">Chỉnh phạm vi function</button>
+   </div>`).join('');
+}
+
+// plan map
+function renderMap(){
+  const m=document.getElementById('pmMod').value;
+  const rows=DATA.filter(d=>!m||d.m===m);
+  document.getElementById('mapBody').innerHTML=rows.map(d=>{
+   const sw=(k,on)=>`<label class="sw"><input type="checkbox" ${on?'checked':''}><span class="sl"></span></label>`;
+   return `<tr><td>${d.id}</td><td>${d.vn}<br><small class="mut">${d.m} / ${d.s}</small></td>
+    <td><span class="b ${d.a}">${d.a}</span></td>
+    <td class="tc">${sw('B',d.B)}</td><td class="tc">${sw('S',d.S)}</td><td class="tc">${sw('O',d.O)}</td></tr>`;
+  }).join('');
+}
+
+// roles
+const ROLES=[
+ {id:'R1',name:'R1 · Nhân viên hiện trường',hint:'Người dùng app tablet — thao tác nghiệp vụ tại công trường, không quản trị.'},
+ {id:'R2',name:'R2 · Customer Admin',hint:'Quản trị viên phía khách — toàn quyền quản lý trong phạm vi gói của tenant.'},
+ {id:'R3',name:'R3 · Nhân viên Intelligence Drone',hint:'Nhân sự nhà cung cấp — quản lý khách hàng, báo cáo, cài đặt hệ thống (xuyên tenant).'},
+ {id:'R4',name:'R4 · System / Auth',hint:'Nền tảng dùng chung — xác thực, phiên, hash mật khẩu, quản lý role.'},
+];
+const RMODS=['Xác thực / Phiên','Dashboard','Quản lý hiện trường','Quản lý tài khoản','Quản lý bản vẽ','Quản lý marker (web)','Đánh dấu / Upload (Tablet)','Đồng bộ / Offline (Tablet)','Xuất JWW-CAD (OPTION)','IntelDrone: KH/Báo cáo/Cài đặt'];
+// policy: role -> module -> [V,C,E,D]
+const POL={
+ R1:{'Xác thực / Phiên':[1,0,0,0],'Dashboard':[1,0,0,0],'Quản lý hiện trường':[1,0,0,0],'Quản lý tài khoản':[0,0,0,0],'Quản lý bản vẽ':[1,0,0,0],'Quản lý marker (web)':[1,0,0,0],'Đánh dấu / Upload (Tablet)':[1,1,1,1],'Đồng bộ / Offline (Tablet)':[1,0,1,0],'Xuất JWW-CAD (OPTION)':[1,0,0,0],'IntelDrone: KH/Báo cáo/Cài đặt':[0,0,0,0]},
+ R2:{'Xác thực / Phiên':[1,0,0,0],'Dashboard':[1,0,0,0],'Quản lý hiện trường':[1,1,1,1],'Quản lý tài khoản':[1,1,1,1],'Quản lý bản vẽ':[1,1,1,1],'Quản lý marker (web)':[1,1,1,1],'Đánh dấu / Upload (Tablet)':[1,1,1,1],'Đồng bộ / Offline (Tablet)':[1,0,1,0],'Xuất JWW-CAD (OPTION)':[1,1,1,1],'IntelDrone: KH/Báo cáo/Cài đặt':[0,0,0,0]},
+ R3:{'Xác thực / Phiên':[1,0,0,0],'Dashboard':[1,0,0,0],'Quản lý hiện trường':[0,0,0,0],'Quản lý tài khoản':[0,0,0,0],'Quản lý bản vẽ':[0,0,0,0],'Quản lý marker (web)':[0,0,0,0],'Đánh dấu / Upload (Tablet)':[0,0,0,0],'Đồng bộ / Offline (Tablet)':[0,0,0,0],'Xuất JWW-CAD (OPTION)':[0,0,0,0],'IntelDrone: KH/Báo cáo/Cài đặt':[1,1,1,1]},
+ R4:{'Xác thực / Phiên':[1,1,1,0],'Dashboard':[0,0,0,0],'Quản lý hiện trường':[0,0,0,0],'Quản lý tài khoản':[0,0,0,0],'Quản lý bản vẽ':[0,0,0,0],'Quản lý marker (web)':[0,0,0,0],'Đánh dấu / Upload (Tablet)':[0,0,0,0],'Đồng bộ / Offline (Tablet)':[0,0,0,0],'Xuất JWW-CAD (OPTION)':[0,0,0,0],'IntelDrone: KH/Báo cáo/Cài đặt':[0,0,0,0]},
+};
+let selRole='R2';
+function roleTabs(){
+  document.getElementById('roleTabs').innerHTML=ROLES.map(r=>`<button class="${r.id===selRole?'on':''}" onclick="selRole='${r.id}';roleTabs();renderRole()">${r.name}</button>`).join('');
+}
+function renderRole(){
+  const pol=POL[selRole];
+  document.getElementById('roleBody').innerHTML=RMODS.map(m=>{
+   const v=pol[m]||[0,0,0,0];
+   const pk=on=>`<input type="checkbox" class="pk" ${on?'checked':''}>`;
+   return `<tr><td class="mod" style="font-weight:600;color:#2a3542">${m}</td>
+    <td class="tc">${pk(v[0])}</td><td class="tc">${pk(v[1])}</td><td class="tc">${pk(v[2])}</td><td class="tc">${pk(v[3])}</td></tr>`;
+  }).join('');
+  document.getElementById('roleHint').innerHTML='🔐 '+ROLES.find(r=>r.id===selRole).hint;
+}
+
+// init
+planCards();fillSel('fnMod','Mọi Module');fillSel('pmMod','Mọi Module');renderFns();planMng();renderMap();roleTabs();renderRole();
+</script>
+</body>
+</html>

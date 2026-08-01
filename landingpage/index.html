@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C-PAD 図落としアプリ｜業界シェアNo.1の劣化調査図DXツール</title>
+<meta name="description" content="C-PAD（シーパッド）は業界シェアNo.1の図落としアプリ。タブレットでの調査入力から自動集計、デジタル劣化調査図の作成・出力までを一気通貫でDX化し、大規模修繕・外壁調査の業務を大幅に効率化します。">
+<meta name="keywords" content="C-PAD,シーパッド,図落としアプリ,劣化調査図,外壁調査,打診調査,補修図面作成,竣工図書作成,電子野帳,修繕工事,建設DX">
+<meta name="author" content="株式会社インテリジェンスドローン">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#16b6ea">
+<link rel="canonical" href="https://www.intelligence-drone.com/c-pad">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="株式会社インテリジェンスドローン">
+<meta property="og:title" content="C-PAD 図落としアプリ｜業界シェアNo.1の劣化調査図DXツール">
+<meta property="og:description" content="タブレットでの調査入力から自動集計、デジタル劣化調査図の作成・出力までを一気通貫でDX化。大規模修繕・外壁調査の業務を大幅に効率化します。">
+<meta property="og:url" content="https://www.intelligence-drone.com/c-pad">
+<meta property="og:image" content="https://static.wixstatic.com/media/9fa267_9076d4612d7f49cc9785ea3331ec272e~mv2.jpg/v1/fill/w_1240,h_840,al_c/9fa267_9076d4612d7f49cc9785ea3331ec272e~mv2.jpg">
+<meta property="og:image:width" content="1240">
+<meta property="og:image:height" content="840">
+<meta property="og:locale" content="ja_JP">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="C-PAD 図落としアプリ｜業界シェアNo.1の劣化調査図DXツール">
+<meta name="twitter:description" content="タブレットで調査入力から自動集計・劣化調査図の出力までDX化。大規模修繕・外壁調査を効率化します。">
+<meta name="twitter:image" content="https://static.wixstatic.com/media/9fa267_9076d4612d7f49cc9785ea3331ec272e~mv2.jpg/v1/fill/w_1240,h_840,al_c/9fa267_9076d4612d7f49cc9785ea3331ec272e~mv2.jpg">
+
+<!-- Favicon (inline SVG) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2316b6ea'/%3E%3Ctext x='32' y='45' font-family='Arial,sans-serif' font-size='40' font-weight='bold' fill='white' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2316b6ea'/%3E%3Ctext x='32' y='45' font-family='Arial,sans-serif' font-size='40' font-weight='bold' fill='white' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+<!-- Structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "C-PAD（シーパッド）",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "iPadOS, Android, Web",
+  "url": "https://www.intelligence-drone.com/c-pad",
+  "image": "https://static.wixstatic.com/media/9fa267_9076d4612d7f49cc9785ea3331ec272e~mv2.jpg/v1/fill/w_1240,h_840,al_c/9fa267_9076d4612d7f49cc9785ea3331ec272e~mv2.jpg",
+  "description": "業界シェアNo.1の図落としアプリ。タブレットでの調査入力から自動集計、デジタル劣化調査図の作成・出力までを一気通貫でDX化する建設系ツールです。",
+  "featureList": ["図落とし・マーカー記入", "面積・数量の自動集計", "デジタル劣化調査図の出力", "クラウド一元管理", "Web管理コンソール", "JWW/CAD・Excel出力"],
+  "inLanguage": "ja",
+  "publisher": {
+    "@type": "Organization",
+    "name": "株式会社インテリジェンスドローン",
+    "url": "https://www.intelligence-drone.com",
+    "email": "rp2@intelligencedrone.co.jp",
+    "telephone": "+81-48-229-5370",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "JP",
+      "addressRegion": "埼玉県",
+      "addressLocality": "戸田市",
+      "streetAddress": "新曽82-3 ラカーサグランディオーソ1F"
+    }
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "株式会社インテリジェンスドローン",
+  "url": "https://www.intelligence-drone.com",
+  "logo": "https://static.wixstatic.com/media/9fa267_6fda09b88de9497b93ba441079cde7d5~mv2.png",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+81-48-229-5370",
+    "email": "rp2@intelligencedrone.co.jp",
+    "contactType": "sales",
+    "areaServed": "JP",
+    "availableLanguage": "Japanese"
+  },
+  "sameAs": ["https://www.instagram.com/c_pad_official/", "https://www.youtube.com/watch?v=XJdHP5ObXDw"]
+}
+</script>
+</head>
+<body>
+<a href="#hero" class="skip-link">メインコンテンツへスキップ</a>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header" id="header">
+  <div class="container header-inner">
+    <a href="#hero" class="logo" aria-label="C-PAD ホーム">
+      <span class="logo-mark" aria-hidden="true">C</span>
+      <span class="logo-text">C-PAD</span>
+    </a>
+    <nav class="nav" id="nav" aria-label="メインナビゲーション">
+      <a href="#problems">お悩み</a>
+      <a href="#features">特徴</a>
+      <a href="#flow">流れ</a>
+      <a href="#video">動画</a>
+      <a href="#screens">画面</a>
+      <a href="#pricing">料金</a>
+      <a href="#interview">導入事例</a>
+      <a href="#contact">お問い合わせ</a>
+    </nav>
+    <a href="#contact" class="btn btn-primary btn-sm header-cta">資料請求</a>
+    <button class="nav-toggle" id="navToggle" aria-label="メニュー">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="container hero-inner">
+    <div class="hero-copy reveal">
+      <span class="badge">業界シェア No.1 ／ 建設系DXツール</span>
+      <h1>図落としアプリの<br><span class="grad-text">パイオニア。</span></h1>
+      <p class="hero-lead">
+        C-PAD(シーパッド)は、2020年より大規模修繕工事を中心に展開しはじめ、
+        現在は業界シェアNo.1のアプリへと進化しました。従来の劣化調査図面に
+        圧倒的な効率化をもたらす、現場のはたらき方改革ツールです。
+      </p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn btn-primary btn-lg">資料請求はこちら</a>
+        <a href="#" class="btn btn-apk btn-lg" download>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          APKをダウンロード
+        </a>
+        <a href="#video" class="btn btn-ghost btn-lg">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          紹介動画を見る
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div><strong data-count="1">No.1</strong><span>業界シェア</span></div>
+        <div><strong data-count="2020">2020</strong><span>提供開始</span></div>
+        <div><strong data-count="100">100%</strong><span>クラウド管理</span></div>
+      </div>
+    </div>
+    <div class="hero-visual reveal">
+      <!-- Laptop: CMS 管理画面 -->
+      <div class="laptop">
+        <div class="laptop-screen">
+          <div class="cms">
+            <aside class="cms-side">
+              <span class="cms-logo"></span>
+              <span class="cms-nav a"></span><span class="cms-nav"></span>
+              <span class="cms-nav"></span><span class="cms-nav"></span>
+            </aside>
+            <div class="cms-main">
+              <div class="cms-head">
+                <span class="cms-title"></span><span class="cms-pill"></span>
+              </div>
+              <div class="cms-cards">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="cms-chart">
+                <i style="height:40%"></i><i style="height:66%"></i><i style="height:52%"></i>
+                <i style="height:84%"></i><i style="height:60%"></i><i style="height:74%"></i>
+                <i style="height:48%"></i><i style="height:90%"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="laptop-base"></div>
+      </div>
+      <!-- Tablet: 現場アプリ -->
+      <div class="tablet">
+        <div class="tablet-screen">
+          <div class="app-topbar"><span></span>C-PAD</div>
+          <div class="app-grid">
+            <div class="app-tile t1"></div>
+            <div class="app-tile t2"></div>
+            <div class="app-tile t3"></div>
+            <div class="app-tile t4"></div>
+          </div>
+          <div class="app-chart">
+            <span style="height:38%"></span><span style="height:64%"></span>
+            <span style="height:52%"></span><span style="height:80%"></span>
+            <span style="height:46%"></span><span style="height:70%"></span>
+          </div>
+          <div class="app-line"></div>
+          <div class="app-line short"></div>
+        </div>
+        <span class="tablet-cam"></span>
+      </div>
+      <div class="float-card fc1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+        集計が自動で一致
+      </div>
+      <div class="float-card fc2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M2 20h20"/></svg>
+        CMSで一元管理
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROBLEMS ===== -->
+<section class="section problems" id="problems">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">YOUR PAIN</span>
+      <h2>こんなお悩み、ありませんか？</h2>
+      <p>修繕工事・劣化調査の現場で起こりがちな課題。C-PADがまとめて解決します。</p>
+    </div>
+    <div class="grid grid-3 problem-grid">
+      <article class="card problem-card reveal">
+        <div class="icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </div>
+        <h3>手書きで図落とし</h3>
+        <p>紙とペンでの手作業。時間も手間もかかり、精度にもばらつきが出ます。</p>
+      </article>
+      <article class="card problem-card reveal">
+        <div class="icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h3M14 14h2M8 18h3M14 18h2"/></svg>
+        </div>
+        <h3>手計算での合わない集計</h3>
+        <p>電卓での集計は計算ミスが起こりがち。数字が合わず何度もやり直し。</p>
+      </article>
+      <article class="card problem-card reveal">
+        <div class="icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>
+        </div>
+        <h3>長引く業務時間</h3>
+        <p>調査から書類作成まで工数が膨大。残業や休日出勤の原因に。</p>
+      </article>
+      <article class="card problem-card reveal">
+        <div class="icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21v-4l11-11 4 4L7 21H3Z"/><path d="M13 6l4 4"/></svg>
+        </div>
+        <h3>修正や調整で書き直し</h3>
+        <p>変更が入るたびに図面を一から書き直し。二度手間が発生します。</p>
+      </article>
+      <article class="card problem-card reveal">
+        <div class="icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="3" width="13" height="18" rx="2"/><path d="M3 7v13a1 1 0 0 0 1 1h11"/></svg>
+        </div>
+        <h3>図面の長期保管</h3>
+        <p>紙の図面は場所を取り、検索も困難。紛失・劣化のリスクも。</p>
+      </article>
+      <article class="card problem-card reveal">
+        <div class="icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <h3>進まないDX</h3>
+        <p>何から始めればいいか分からず、現場のデジタル化が停滞している。</p>
+      </article>
+    </div>
+    <p class="problems-cta reveal">修繕工事のお悩みは、<b>C-PADが解決！！</b></p>
+  </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section class="section features" id="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">FEATURES</span>
+      <h2>C-PADの特徴</h2>
+      <p>現場で働く方の「はたらき方改革」に効果を発揮してきた、選ばれる理由。</p>
+    </div>
+    <div class="feature-rows">
+      <div class="feature-row reveal">
+        <div class="feature-media"><div class="media-badge">01</div></div>
+        <div class="feature-text">
+          <h3>タブレットで現場そのまま図落とし</h3>
+          <p>調査結果をその場でタブレットに入力。手書きの図落とし作業をデジタル化し、現場での工程を一気通貫でスマートにします。</p>
+          <ul class="check-list">
+            <li>直感的なタッチ操作で誰でもすぐ使える</li>
+            <li>打診調査・外壁調査・下地調査に対応</li>
+            <li>電子野帳としてそのまま記録</li>
+          </ul>
+        </div>
+      </div>
+      <div class="feature-row reverse reveal">
+        <div class="feature-media alt"><div class="media-badge">02</div></div>
+        <div class="feature-text">
+          <h3>集計は自動、数字は常に一致</h3>
+          <p>入力したデータから面積・数量を自動集計。手計算による集計ミスをなくし、そのまま補修図面・竣工図書の作成へつなげます。</p>
+          <ul class="check-list">
+            <li>面積・数量をリアルタイム自動計算</li>
+            <li>修正・調整も再入力なしで即反映</li>
+            <li>デジタル劣化調査図をワンタップ出力</li>
+          </ul>
+        </div>
+      </div>
+      <div class="feature-row reveal">
+        <div class="feature-media"><div class="media-badge">03</div></div>
+        <div class="feature-text">
+          <h3>クラウドで保管・共有、DXを加速</h3>
+          <p>図面データはクラウドで一元管理。長期保管も検索もかんたんで、チーム間の共有もスムーズ。建設現場のDXを力強く後押しします。</p>
+          <ul class="check-list">
+            <li>紙の保管スペース・紛失リスクを解消</li>
+            <li>いつでもどこからでもアクセス</li>
+            <li>竣工図書・図面清書までデジタル完結</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WORKFLOW ===== -->
+<section class="section flow" id="flow">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">WORKFLOW</span>
+      <h2>C-Padを現場で使うと</h2>
+      <p>調査から提出まで。C-Padなら「手計算での集計」「図面の清書」の工程をまるごとスキップできます。</p>
+    </div>
+
+    <!-- C-Pad lane -->
+    <div class="flow-lane cpad reveal">
+      <div class="lane-name cpad-name">
+        <span class="lane-logo">C</span>C-Pad
+      </div>
+      <div class="flow-steps">
+        <div class="flow-stage">
+          <span class="flow-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></span>
+          <span class="flow-lbl">調査&amp;マーキング</span>
+        </div>
+        <div class="flow-stage">
+          <span class="flow-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="2.5" width="16" height="19" rx="2.5"/><path d="M10.5 18.5h3"/><path d="M9 9l3.5 3.5M14 8.5l-5 5.5"/></svg></span>
+          <span class="flow-lbl">図面に記入<br><small>（タブレット）</small></span>
+        </div>
+        <div class="flow-skip" aria-label="集計と清書をスキップ">
+          <span class="skip-word">SKIP</span>
+          <span class="skip-arrow"><svg viewBox="0 0 120 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h104"/><path d="M96 4l14 8-14 8"/></svg></span>
+          <span class="skip-note">集計・清書は不要</span>
+        </div>
+        <div class="flow-stage">
+          <span class="flow-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg></span>
+          <span class="flow-lbl">図面と<br>集計表を提出</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conventional lane -->
+    <div class="flow-lane legacy reveal">
+      <div class="lane-name legacy-name">従来型</div>
+      <div class="flow-steps steps-5">
+        <div class="flow-stage">
+          <span class="flow-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></span>
+          <span class="flow-lbl">調査&amp;マーキング</span>
+        </div>
+        <div class="flow-stage">
+          <span class="flow-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
+          <span class="flow-lbl">図面に記入<br><small>（手書き）</small></span>
+        </div>
+        <div class="flow-stage">
+          <span class="flow-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="2.5" width="14" height="19" rx="2"/><path d="M8 6h8M8 10h2M12 10h2M16 10h0M8 14h2M12 14h2M8 18h2M12 18h2"/></svg></span>
+          <span class="flow-lbl">手計算で集計</span>
+        </div>
+        <div class="flow-stage">
+          <span class="flow-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2.5" y="4" width="19" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span>
+          <span class="flow-lbl">図面の清書</span>
+        </div>
+        <div class="flow-stage">
+          <span class="flow-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg></span>
+          <span class="flow-lbl">図面と<br>集計表を提出</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onboarding stepper -->
+    <div class="onboard reveal">
+      <p class="onboard-intro">新規顧客の開設フロー：情報入力 → プラン選択 → システムが権限（entitlement）と管理者アカウントを自動生成します。</p>
+      <ol class="stepper" id="stepper">
+        <li class="step"><span class="step-num">1</span><span class="step-lbl">顧客情報</span></li>
+        <li class="step"><span class="step-num">2</span><span class="step-lbl">プラン選択</span></li>
+        <li class="step"><span class="step-num">3</span><span class="step-lbl">権限の自動生成<br><small>entitlement</small></span></li>
+        <li class="step"><span class="step-num">4</span><span class="step-lbl">管理者アカウント作成</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VIDEO ===== -->
+<section class="section video" id="video">
+  <div class="video-overlay"></div>
+  <div class="container video-inner reveal">
+    <span class="eyebrow light">MOVIE</span>
+    <h2>まずは動画でC-PADを見る</h2>
+    <button class="play-btn" type="button" id="playVideo" data-video="XJdHP5ObXDw" aria-label="紹介動画を再生">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <p>実際の操作イメージと導入効果を、約数分の動画でご覧いただけます。</p>
+  </div>
+</section>
+
+<!-- ===== STATS ===== -->
+<section class="section stats">
+  <div class="container grid grid-4 stats-grid">
+    <div class="stat reveal"><strong data-count="2020" data-suffix="年">0</strong><span>提供開始</span></div>
+    <div class="stat reveal"><strong data-count="1" data-prefix="No." >0</strong><span>業界シェア</span></div>
+    <div class="stat reveal"><strong data-count="3" data-suffix="調査">0</strong><span>外壁・下地・打診に対応</span></div>
+    <div class="stat reveal"><strong data-count="100" data-suffix="%">0</strong><span>クラウド一元管理</span></div>
+  </div>
+</section>
+
+<!-- ===== SCREENSHOTS ===== -->
+<section class="section screens" id="screens">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">APP SCREENS</span>
+      <h2>アプリ画面イメージ</h2>
+      <p>調査から集計、図面出力まで。現場に最適化された画面設計。</p>
+    </div>
+    <div class="screens-marquee reveal">
+     <div class="marquee-track" id="marqueeTrack">
+      <button class="shot-thumb" type="button" data-idx="0" data-src="images/screen-1.png" data-title="写真の追加" data-desc="ギャラリーまたはカメラから欠陥箇所の写真を追加し、タグとコメントを記録します。">
+        <span class="shot-img"><img src="images/screen-1.png" width="479" height="436" loading="lazy" decoding="async" alt="C-PAD 写真の追加画面"></span>
+        <span class="thumb-cap">写真の追加</span>
+      </button>
+      <button class="shot-thumb" type="button" data-idx="1" data-src="images/screen-2.png" data-title="他端末からデータ取得" data-desc="他タブレットがアップロードしたマーカーを取り込み、タイムスタンプ順にマージします。">
+        <span class="shot-img"><img src="images/screen-2.png" width="473" height="444" loading="lazy" decoding="async" alt="C-PAD 他端末からのデータ取得画面"></span>
+        <span class="thumb-cap">他端末からデータ取得</span>
+      </button>
+      <button class="shot-thumb" type="button" data-idx="2" data-src="images/screen-3.png" data-title="入力データアップロード" data-desc="図面キャッシュとアップロード状況を一覧で管理。オフライン利用にも対応します。">
+        <span class="shot-img"><img src="images/screen-3.png" width="478" height="445" loading="lazy" decoding="async" alt="C-PAD 入力データアップロード画面"></span>
+        <span class="thumb-cap">入力データアップロード</span>
+      </button>
+      <button class="shot-thumb" type="button" data-idx="3" data-src="images/screen-4.png" data-title="マーカー複数選択（Multi）" data-desc="図面上のマーカーをまとめて選択・操作。20マーカー・11グループを表示しています。">
+        <span class="shot-img"><img src="images/screen-4.png" width="480" height="441" loading="lazy" decoding="async" alt="C-PAD マーカー複数選択画面"></span>
+        <span class="thumb-cap">マーカー複数選択</span>
+      </button>
+      <button class="shot-thumb" type="button" data-idx="4" data-src="images/screen-5.png" data-title="写真の編集" data-desc="撮影した写真にタグとコメントを付与し、マーカーに紐づけて劣化状況を記録します。">
+        <span class="shot-img"><img src="images/screen-5.png" width="470" height="441" loading="lazy" decoding="async" alt="C-PAD 写真の編集画面"></span>
+        <span class="thumb-cap">写真の編集</span>
+      </button>
+      <button class="shot-thumb" type="button" data-idx="5" data-src="images/screen-6.png" data-title="選択マーカー集計" data-desc="種別ごとにマーカー数と数量を自動集計。合計も一目で把握できます。">
+        <span class="shot-img"><img src="images/screen-6.png" width="473" height="438" loading="lazy" decoding="async" alt="C-PAD 選択マーカー集計画面"></span>
+        <span class="thumb-cap">選択マーカー集計</span>
+      </button>
+      <button class="shot-thumb" type="button" data-idx="6" data-src="images/screen-7.png" data-title="範囲選択（Range）" data-desc="ドラッグで範囲内のマーカーをまとめて選択・編集できます。">
+        <span class="shot-img"><img src="images/screen-7.png" width="484" height="445" loading="lazy" decoding="async" alt="C-PAD 範囲選択画面"></span>
+        <span class="thumb-cap">範囲選択</span>
+      </button>
+      <button class="shot-thumb" type="button" data-idx="7" data-src="images/screen-8.png" data-title="数量入力" data-desc="テンキーでマーカーごとの数量を素早く入力し、図落とし作業を効率化します。">
+        <span class="shot-img"><img src="images/screen-8.png" width="480" height="445" loading="lazy" decoding="async" alt="C-PAD 数量入力画面"></span>
+        <span class="thumb-cap">数量入力</span>
+      </button>
+     </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== INTERVIEW / REVIEWS ===== -->
+<section class="section interview" id="interview">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">USER INTERVIEW</span>
+      <h2>導入事例・お客様の声</h2>
+      <p>実際に現場でご利用いただいているお客様に、使用感や導入効果をインタビューしました。</p>
+    </div>
+    <div class="grid grid-3 review-grid">
+      <blockquote class="card review-card reveal">
+        <div class="quote-mark">“</div>
+        <p>手書きと手計算に費やしていた時間が劇的に減りました。集計の数字が合わないストレスから解放されたのが一番大きいです。</p>
+        <footer><span class="avatar">湊</span><cite>湊和 株式会社 様<small>現場ご担当者</small></cite></footer>
+      </blockquote>
+      <blockquote class="card review-card reveal">
+        <div class="quote-mark">“</div>
+        <p>タブレットでその場に図落としできるので、事務所に戻ってからの清書作業がほぼゼロに。若手もすぐ使いこなせました。</p>
+        <footer><span class="avatar">A</span><cite>大規模修繕 施工会社 様<small>工事部</small></cite></footer>
+      </blockquote>
+      <blockquote class="card review-card reveal">
+        <div class="quote-mark">“</div>
+        <p>図面がクラウドで管理でき、過去物件の検索も一瞬。紙の保管に困っていた現場のDXが一気に進みました。</p>
+        <footer><span class="avatar">B</span><cite>建設 管理会社 様<small>DX推進担当</small></cite></footer>
+      </blockquote>
+    </div>
+    <div class="interview-link reveal">
+      <a href="https://www.intelligence-drone.com/interview-page" target="_blank" rel="noopener" class="btn btn-outline">01 湊和 株式会社 様の事例を見る →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRICING ===== -->
+<section class="section pricing" id="pricing">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">PRICING</span>
+      <h2>サブスクリプションプランを選択</h2>
+      <p>各プランのファンクション数は機能マトリクスから直接算出しています。</p>
+    </div>
+    <div class="grid grid-3 price-grid">
+      <article class="card price-card reveal">
+        <div class="price-name">BASIC</div>
+        <p class="price-desc">現場アプリ</p>
+        <div class="price-count"><strong>73</strong><span>ファンクション</span></div>
+        <ul class="price-feat">
+          <li>タブレット／ブラウザアプリ</li>
+          <li>マーカー記入（図落とし）</li>
+          <li>アップロード＆オフライン</li>
+          <li>基本ダッシュボード</li>
+        </ul>
+        <a href="#contact" class="btn btn-outline btn-block">お見積り依頼</a>
+      </article>
+      <article class="card price-card featured reveal">
+        <div class="price-ribbon">人気</div>
+        <div class="price-name">STANDARD</div>
+        <p class="price-desc">＋Web管理コンソール</p>
+        <div class="price-count"><strong>109</strong><span>ファンクション</span></div>
+        <ul class="price-feat">
+          <li>BASICの全機能</li>
+          <li>現場管理</li>
+          <li>アカウント管理</li>
+          <li>図面・マーカー管理</li>
+        </ul>
+        <a href="#contact" class="btn btn-primary btn-block">お見積り依頼</a>
+      </article>
+      <article class="card price-card reveal">
+        <div class="price-name">OPTION</div>
+        <p class="price-desc">＋CAD／画像の高度機能</p>
+        <div class="price-count"><strong>114</strong><span>ファンクション</span></div>
+        <ul class="price-feat">
+          <li>STANDARDの全機能</li>
+          <li>マーカー付きJWW／CAD出力</li>
+          <li>画像リスト管理</li>
+          <li>画像Excel出力</li>
+        </ul>
+        <a href="#contact" class="btn btn-outline btn-block">お見積り依頼</a>
+      </article>
+    </div>
+    <div class="quote-cta reveal">
+      <span class="quote-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+      </span>
+      <div>
+        <b>お見積りをご希望ですか？</b>
+        <span>現場の規模・条件に合わせた最適プランをご提案します。</span>
+      </div>
+      <a href="#contact" class="btn btn-primary">見積りをリクエスト →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT CTA ===== -->
+<section class="section contact" id="contact">
+  <div class="container contact-inner reveal">
+    <div class="contact-copy">
+      <span class="eyebrow light">CONTACT</span>
+      <h2>C-PADについてのお問い合わせ</h2>
+      <p>資料請求・導入のご相談はお気軽にどうぞ。現場に合わせた活用方法をご提案します。</p>
+      <div class="contact-lines">
+        <div class="c-line">
+          <span class="c-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+          <div><small>Mail</small><a href="mailto:rp2@intelligencedrone.co.jp">rp2@intelligencedrone.co.jp</a></div>
+        </div>
+        <div class="c-line">
+          <span class="c-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z"/></svg></span>
+          <div><small>Phone</small><a href="tel:0482295370">048-229-5370</a></div>
+        </div>
+      </div>
+    </div>
+    <form class="contact-form" id="contactForm" novalidate>
+      <div class="field">
+        <label for="cf-name">お名前 <span>*</span></label>
+        <input id="cf-name" name="name" type="text" required autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="cf-email">メールアドレス <span>*</span></label>
+        <input id="cf-email" name="email" type="email" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="cf-company">会社名</label>
+        <input id="cf-company" name="company" type="text" autocomplete="organization">
+      </div>
+      <div class="field">
+        <label for="cf-msg">お問い合わせ内容</label>
+        <textarea id="cf-msg" name="message" rows="4"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg btn-block">送信する</button>
+      <p class="form-note" id="formNote" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <a href="#hero" class="logo logo-light">
+        <span class="logo-mark">C</span><span class="logo-text">C-PAD</span>
+      </a>
+      <p>図落としアプリのパイオニア。<br>建設現場のDXをC-PADが支えます。</p>
+      <div class="socials">
+        <a href="https://www.instagram.com/c_pad_official/" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="https://www.youtube.com/watch?v=XJdHP5ObXDw" target="_blank" rel="noopener" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="m10 9 5 3-5 3V9Z" fill="currentColor" stroke="none"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div>
+        <h3>サービス</h3>
+        <a href="#problems">お悩み解決</a>
+        <a href="#features">C-PADの特徴</a>
+        <a href="#screens">アプリ画面</a>
+        <a href="#pricing">料金プラン</a>
+        <a href="#interview">導入事例</a>
+      </div>
+      <div>
+        <h3>会社情報</h3>
+        <a href="https://www.intelligence-drone.com/aboutus" target="_blank" rel="noopener">企業情報</a>
+        <a href="https://www.intelligence-drone.com/recruit" target="_blank" rel="noopener">採用情報</a>
+        <a href="https://www.intelligence-drone.com/how-to-use" target="_blank" rel="noopener">使用方法</a>
+        <a href="#contact">お問い合わせ</a>
+      </div>
+      <div class="footer-address">
+        <h3>お問い合わせ先</h3>
+        <p>株式会社インテリジェンスドローン<br>
+        〒 埼玉県戸田市新曽82-3<br>
+        ラカーサグランディオーソ1F</p>
+        <p>TEL 048-229-5370<br>rp2@intelligencedrone.co.jp</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="container">© 2026 株式会社インテリジェンスドローン / C-PAD. All rights reserved.</div>
+  </div>
+</footer>
+
+<a href="#hero" class="to-top" id="toTop" aria-label="トップへ戻る">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+</a>
+
+<!-- ===== VIDEO MODAL ===== -->
+<div class="video-modal" id="videoModal" role="dialog" aria-modal="true" aria-label="紹介動画" aria-hidden="true">
+  <div class="vm-backdrop" data-close></div>
+  <div class="vm-dialog">
+    <button class="vm-close" type="button" data-close aria-label="閉じる">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="vm-frame" id="vmFrame"></div>
+  </div>
+</div>
+
+<!-- ===== SCREEN GALLERY MODAL ===== -->
+<div class="gallery-modal" id="galleryModal" role="dialog" aria-modal="true" aria-label="アプリ画面プレビュー" aria-hidden="true">
+  <div class="gv-backdrop" data-gclose></div>
+  <button class="vm-close gv-x" type="button" data-gclose aria-label="閉じる">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  </button>
+  <button class="gv-nav prev" type="button" id="gvPrev" aria-label="前の画面">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+  </button>
+  <div class="gv-stage">
+    <div class="gv-shot"><img id="gvImg" src="" alt="" width="480" height="445" decoding="async"></div>
+    <div class="gv-meta">
+      <h3 id="gvTitle"></h3>
+      <p id="gvDesc"></p>
+      <div class="gv-dots" id="gvDots"></div>
+    </div>
+  </div>
+  <button class="gv-nav next" type="button" id="gvNext" aria-label="次の画面">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+  </button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
