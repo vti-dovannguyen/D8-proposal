@@ -61,7 +61,7 @@ h2.sec{font-size:16px;color:var(--navy);margin:0 0 4px}
 .chip{display:inline-block;background:#EEF2F8;color:#3a4757;border-radius:6px;padding:2px 8px;font-size:11.5px;margin:2px}
 /* table */
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:#F0F4FA;color:var(--navy);text-align:left;padding:10px 12px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.02em;border-bottom:2px solid var(--line);position:sticky;top:64px}
+th{background:#F0F4FA;color:var(--navy);text-align:left;padding:10px 12px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.02em;border-bottom:2px solid var(--line);position:sticky;}
 td{padding:9px 12px;border-bottom:1px solid #EEF1F6;vertical-align:middle}
 tr:hover td{background:#FAFBFE}
 .tc{text-align:center}
@@ -111,7 +111,8 @@ small.mut{color:var(--muted)}
     <div class="brand"><span class="logo">C</span> C-PAD Admin</div>
     <nav class="nav">
       <div class="grp">Vận hành</div>
-      <a data-s="onboard" class="active"><span class="ic">🏢</span> Đăng ký Tenant mới</a>
+      <a data-s="tenants" class="active"><span class="ic">🏢</span> Quản lý Tenant</a>
+      <a data-s="onboard"><span class="ic">➕</span> Đăng ký Tenant mới</a>
       <div class="grp">Cấu hình hệ thống</div>
       <a data-s="functions"><span class="ic">🧩</span> Quản lý Functions</a>
       <a data-s="plans"><span class="ic">📦</span> Quản lý Plans</a>
@@ -121,13 +122,30 @@ small.mut{color:var(--muted)}
   </aside>
   <main class="main">
     <div class="top">
-      <h1 id="ttl">Đăng ký Tenant mới</h1>
+      <h1 id="ttl">Quản lý Tenant</h1>
       <div class="who"><span>Intelligence Drone Admin</span><span class="av">ID</span></div>
     </div>
     <div class="wrap">
 
+      <!-- TENANTS -->
+      <section class="screen on" id="tenants">
+        <p class="lead">Danh sách khách hàng (tenant) đang sử dụng hệ thống, kèm gói, số người dùng và số quyền (entitlement) được cấp.</p>
+        <div class="stat card" id="tnStat"></div>
+        <div class="tools">
+          <input class="inp" id="tnSearch" placeholder="🔍 Tìm theo tên / mã tenant..." oninput="renderTenants()">
+          <select class="sel" id="tnPlan" onchange="renderTenants()">
+            <option value="">Mọi gói</option><option>BASIC</option><option>STANDARD</option><option>OPTION</option>
+          </select>
+          <button class="btn sm" onclick="goto('onboard')" style="margin-left:auto">+ Đăng ký Tenant mới</button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table><thead><tr><th>Mã tenant</th><th>Tên khách hàng</th><th class="tc" style="width:110px">Gói</th><th class="tc" style="width:75px">Users</th><th class="tc" style="width:110px">Entitlement</th><th class="tc" style="width:130px">Trạng thái</th><th style="width:110px">Ngày tạo</th><th class="tc" style="width:90px">Thao tác</th></tr></thead>
+          <tbody id="tnBody"></tbody></table>
+        </div>
+      </section>
+
       <!-- ONBOARD -->
-      <section class="screen on" id="onboard">
+      <section class="screen" id="onboard">
         <p class="lead">Quy trình khởi tạo khách hàng mới: nhập thông tin → chọn gói → hệ thống tự sinh bộ quyền (entitlement) và tài khoản quản trị.</p>
         <div class="steps">
           <div class="st done"><div class="n">1</div>Thông tin KH</div>
@@ -137,10 +155,10 @@ small.mut{color:var(--muted)}
         </div>
         <div class="card">
           <div class="grid2">
-            <div class="formrow"><label>Tên khách hàng / Công ty</label><input class="inp" style="width:100%" value="Công ty Xây dựng ABC"></div>
-            <div class="formrow"><label>Mã Tenant</label><input class="inp" style="width:100%" value="abc-corp"></div>
-            <div class="formrow"><label>Email Customer Admin</label><input class="inp" style="width:100%" value="admin@abc-corp.jp"></div>
-            <div class="formrow"><label>Ngày kích hoạt</label><input class="inp" style="width:100%" value="2026-08-01"></div>
+            <div class="formrow"><label>Tên khách hàng / Công ty</label><input class="inp" id="tnName" style="width:100%" value="Công ty Xây dựng ABC"></div>
+            <div class="formrow"><label>Mã Tenant</label><input class="inp" id="tnCode" style="width:100%" value="abc-corp"></div>
+            <div class="formrow"><label>Email Customer Admin</label><input class="inp" id="tnEmail" style="width:100%" value="admin@abc-corp.jp"></div>
+            <div class="formrow"><label>Ngày kích hoạt</label><input class="inp" id="tnDate" style="width:100%" value="2026-08-01"></div>
           </div>
         </div>
         <h2 class="sec">Chọn gói subscription</h2>
@@ -214,14 +232,45 @@ const cnt=k=>DATA.filter(d=>d[k]).length;
 const MODS=[...new Set(DATA.map(d=>d.m))];
 
 // nav
-document.querySelectorAll('.nav a').forEach(a=>a.onclick=()=>{
-  document.querySelectorAll('.nav a').forEach(x=>x.classList.remove('active'));
-  a.classList.add('active');
-  const s=a.dataset.s;
-  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));
-  document.getElementById(s).classList.add('on');
-  document.getElementById('ttl').textContent=a.textContent.trim();
-});
+function goto(s){
+  document.querySelectorAll('.nav a').forEach(x=>x.classList.toggle('active',x.dataset.s===s));
+  document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('on',x.id===s));
+  const link=[...document.querySelectorAll('.nav a')].find(x=>x.dataset.s===s);
+  if(link) document.getElementById('ttl').textContent=link.textContent.trim();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('.nav a').forEach(a=>a.onclick=()=>goto(a.dataset.s));
+
+// ===== Tenants =====
+const PK={BASIC:'B',STANDARD:'S',OPTION:'O'};
+let TENANTS=[
+ {code:'sakura-build',name:'Sakura Construction Co.',plan:'OPTION',users:24,status:'Đang hoạt động',date:'2026-05-12'},
+ {code:'nippon-eng',name:'Nippon Engineering',plan:'STANDARD',users:11,status:'Đang hoạt động',date:'2026-06-03'},
+ {code:'daiwa-house',name:'Daiwa House',plan:'BASIC',users:6,status:'Đang hoạt động',date:'2026-07-20'},
+ {code:'tokyo-exc',name:'Tokyo Excavation',plan:'STANDARD',users:0,status:'Chờ kích hoạt',date:'2026-07-28'},
+];
+const planBadge=n=>`<span class="b" style="background:${n==='OPTION'?'#E7DAF7;color:#5B2A9E':n==='STANDARD'?'#DCE7F7;color:#1F4E78':'#E2EFDA;color:#2E7D32'}">${n}</span>`;
+const stBadge=s=>s==='Đang hoạt động'?`<span class="b" style="background:#E2EFDA;color:#2E7D32">● ${s}</span>`:`<span class="b" style="background:#FFF3D6;color:#8A6100">● ${s}</span>`;
+function renderTenants(){
+  const q=(document.getElementById('tnSearch').value||'').toLowerCase();
+  const pf=document.getElementById('tnPlan').value;
+  const rows=TENANTS.filter(t=>(!q||t.name.toLowerCase().includes(q)||t.code.includes(q))&&(!pf||t.plan===pf));
+  document.getElementById('tnBody').innerHTML=rows.map(t=>`<tr style="${t.isNew?'background:#FFFBEA':''}">
+    <td><b>${t.code}</b>${t.isNew?' <span class="b" style="background:#1F4E78;color:#fff">MỚI</span>':''}</td>
+    <td>${t.name}</td>
+    <td class="tc">${planBadge(t.plan)}</td>
+    <td class="tc">${t.users}</td>
+    <td class="tc"><b>${cnt(PK[t.plan])}</b></td>
+    <td class="tc">${stBadge(t.status)}</td>
+    <td>${t.date}</td>
+    <td class="tc"><button class="btn sm ghost">Chi tiết</button></td></tr>`).join('')
+    || '<tr><td colspan="8" style="text-align:center;color:#999;padding:24px">Không có tenant</td></tr>';
+  document.getElementById('tnStat').innerHTML=`
+   <div class="s"><div class="v">${TENANTS.length}</div><div class="l">Tổng tenant</div></div>
+   <div class="s"><div class="v" style="color:#2E7D32">${TENANTS.filter(t=>t.status==='Đang hoạt động').length}</div><div class="l">Đang hoạt động</div></div>
+   <div class="s"><div class="v" style="color:#8A6100">${TENANTS.filter(t=>t.status!=='Đang hoạt động').length}</div><div class="l">Chờ kích hoạt</div></div>
+   <div class="s"><div class="v">${TENANTS.reduce((a,t)=>a+t.users,0)}</div><div class="l">Tổng người dùng</div></div>`;
+}
 
 // onboard plan cards
 let selPlan='S';
@@ -236,12 +285,19 @@ function planCards(){
 }
 function provision(){
   const p=PLANS.find(x=>x.k===selPlan);
+  const name=(document.getElementById('tnName').value||'Khách hàng mới').trim();
+  const code=(document.getElementById('tnCode').value||'tenant-moi').trim();
+  const date=document.getElementById('tnDate').value||'2026-08-01';
+  // thêm tenant mới vào đầu danh sách + đánh dấu vừa tạo
+  TENANTS.unshift({code,name,plan:p.name,users:1,status:'Chờ kích hoạt',date,isNew:true});
   document.getElementById('provResult').innerHTML=`<div class="ok">
-   <b>✓ Đã khởi tạo Tenant "abc-corp" với gói ${p.name}.</b><br>
+   <b>✓ Đã khởi tạo Tenant "${code}" với gói ${p.name}.</b><br>
    • Sinh <b>${cnt(selPlan)} entitlement</b> (function được bật) cho tenant.<br>
-   • Tạo tài khoản <b>Customer Admin</b> (admin@abc-corp.jp), đã gửi email kích hoạt.<br>
-   • Customer Admin có thể tự tạo nhân viên hiện trường trong phạm vi gói.
+   • Tạo tài khoản <b>Customer Admin</b>, đã gửi email kích hoạt.<br>
+   • Đang chuyển sang màn Quản lý Tenant...
   </div>`;
+  renderTenants();
+  setTimeout(()=>goto('tenants'),700);
 }
 
 // functions screen
@@ -318,7 +374,7 @@ function renderRole(){
 }
 
 // init
-planCards();fillSel('fnMod','Mọi Module');fillSel('pmMod','Mọi Module');renderFns();planMng();renderMap();roleTabs();renderRole();
+renderTenants();planCards();fillSel('fnMod','Mọi Module');fillSel('pmMod','Mọi Module');renderFns();planMng();renderMap();roleTabs();renderRole();
 </script>
 </body>
 </html>
