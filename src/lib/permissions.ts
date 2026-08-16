@@ -23,3 +23,7 @@ export function can(role: Role, capability: Capability): boolean {
 export function isManager(role: Role): boolean {
   return MANAGERS.includes(role);
 }
+
+export function shouldHideWeeklyReportFields(role: Role): boolean {
+  return isManager(role);
+}

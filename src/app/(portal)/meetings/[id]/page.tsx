@@ -14,6 +14,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { canEditMeeting, eeTotals, formatDateOnlyRange, getEeNorm, milestoneStatusClass, projectStatusClass, SUMMARY_WEEKLY_CATEGORY } from "@/lib/meetings";
 import { canManagePmMeeting } from "@/lib/projects";
+import { shouldHideWeeklyReportFields } from "@/lib/permissions";
 import { sanitizeMeetingRichTextHtml } from "@/lib/sanitize";
 import { MeetingButtons } from "./meeting-buttons";
 import { SummaryWeeklyReport } from "../summary-weekly-report";
@@ -260,6 +261,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
   const eeNorm = getEeNorm();
   const role = session!.user.role;
   const isPm = role === "PM";
+  const hideManagerFields = shouldHideWeeklyReportFields(role);
   const canEditProject = role !== "PM" || canManagePmMeeting(session!.user.id, m.projectId, m.ownerId, m.project?.picPms ?? []);
   const editable = canEditMeeting(role, m.status) && canEditProject;
   const isSummaryWeekly = m.category === SUMMARY_WEEKLY_CATEGORY;
@@ -411,7 +413,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
         </SectionCard>
       )}
 
-      {!isPm && (
+      {!isPm && !hideManagerFields && (
         <div className="grid gap-4 lg:grid-cols-2">
           <IssuePanel title="Division Issues" issues={m.divisionIssues} />
           <IssuePanel title="Company Issues" issues={m.companyIssues} />
@@ -436,18 +438,22 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
                       <p className="mt-2 text-sm text-slate-400">Chưa có cập nhật.</p>
                     )}
                   </div>
+                  {!hideManagerFields && (
+                    <div>
+                      <div className="rounded bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-700">2. Milestone</div>
+                      <div className="mt-2"><MilestoneTable rows={g.milestones} /></div>
+                    </div>
+                  )}
                   <div>
-                    <div className="rounded bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-700">2. Milestone</div>
-                    <div className="mt-2"><MilestoneTable rows={g.milestones} /></div>
-                  </div>
-                  <div>
-                    <div className="rounded bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-700">3. Risk / Issue</div>
+                    <div className="rounded bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-700">{hideManagerFields ? "2" : "3"}. Risk / Issue</div>
                     <div className="mt-2"><RiskTable rows={g.risks} /></div>
                   </div>
-                  <div>
-                    <div className="rounded bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-700">4. Next Week Plan</div>
-                    <div className="mt-2"><NextWeekPlanTable rows={g.nextWeekPlans} /></div>
-                  </div>
+                  {!hideManagerFields && (
+                    <div>
+                      <div className="rounded bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-700">4. Next Week Plan</div>
+                      <div className="mt-2"><NextWeekPlanTable rows={g.nextWeekPlans} /></div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -455,23 +461,29 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
         </SectionCard>
       ) : (
         <>
-          <SectionCard title={`Milestone (${m.milestones.length})`} icon={<CalendarCheck size={15} />}>
-            <MilestoneTable rows={m.milestones} />
-          </SectionCard>
+          {!hideManagerFields && (
+            <SectionCard title={`Milestone (${m.milestones.length})`} icon={<CalendarCheck size={15} />}>
+              <MilestoneTable rows={m.milestones} />
+            </SectionCard>
+          )}
 
           <SectionCard title={`Issues/Risks (${m.risks.length})`} icon={<TriangleAlert size={15} />}>
             <RiskTable rows={m.risks} />
           </SectionCard>
 
-          <SectionCard title={`Next Week Plan (${m.nextWeekPlans.length})`} icon={<ClipboardList size={15} />}>
-            <NextWeekPlanTable rows={m.nextWeekPlans} />
-          </SectionCard>
+          {!hideManagerFields && (
+            <SectionCard title={`Next Week Plan (${m.nextWeekPlans.length})`} icon={<ClipboardList size={15} />}>
+              <NextWeekPlanTable rows={m.nextWeekPlans} />
+            </SectionCard>
+          )}
         </>
       )}
 
-      <SectionCard title="Team Summary" icon={<UsersRound size={15} />}>
-        <RichHtml html={m.teamSummary} />
-      </SectionCard>
+      {!hideManagerFields && (
+        <SectionCard title="Team Summary" icon={<UsersRound size={15} />}>
+          <RichHtml html={m.teamSummary} />
+        </SectionCard>
+      )}
 
       <SectionCard title="Opportunities" icon={<TrendingUp size={15} />}>
         <RichHtml html={m.opportunities} />
