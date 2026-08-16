@@ -8,6 +8,7 @@ import { type ProjectOption } from "@/lib/master-data";
 import { htmlToText } from "@/lib/announcements";
 import { SUMMARY_WEEKLY_CATEGORY, SUMMARY_WEEKLY_TEMPLATE, RISK_TYPES, RISK_STATUSES, MILESTONE_STATUSES, PROJECT_STATUSES } from "@/lib/meetings";
 import { MEETING_WEEK_OPTIONS } from "@/lib/meeting-week-options";
+import { shouldHideWeeklyReportFields } from "@/lib/permissions";
 import { syncWeeklyTasks } from "./actions";
 import { SummaryWeeklyReport } from "./summary-weekly-report";
 
@@ -79,6 +80,7 @@ export function MeetingForm({
   const isSectionManager = role === "SECTION_MANAGER";
   const isDivisionLeader = role === "DIVISION_LEADER";
   const isPm = role === "PM";
+  const hideManagerFields = shouldHideWeeklyReportFields(role);
   const canSummaryWeekly = isSectionManager || isDivisionLeader;
   const categoryOptions = useMemo(
     () => (canSummaryWeekly && !categories.includes(SUMMARY_WEEKLY_CATEGORY) ? [...categories, SUMMARY_WEEKLY_CATEGORY] : categories),
@@ -251,25 +253,25 @@ export function MeetingForm({
         </div>
       )}
 
-      {!isPm && (
+      {!isPm && !hideManagerFields && (
         <IssueEditor title="Division Issues" rows={form.divisionIssues} people={people} currentUserId={currentUserId} severities={SEVERITIES} onChange={(rows) => set("divisionIssues", rows)} />
       )}
-      {!isPm && (
+      {!isPm && !hideManagerFields && (
         <IssueEditor title="Company Issues" rows={form.companyIssues} people={people} currentUserId={currentUserId} severities={SEVERITIES} onChange={(rows) => set("companyIssues", rows)} />
       )}
 
       {hasSubProjects ? (
-        <GroupsEditor rows={form.groups} onChange={(rows) => set("groups", rows)} />
+        <GroupsEditor rows={form.groups} onChange={(rows) => set("groups", rows)} hideMilestonesAndNextWeekPlans={hideManagerFields} />
       ) : (
         <>
-          <MilestoneEditor rows={form.milestones} onChange={(rows) => set("milestones", rows)} />
+          {!hideManagerFields && <MilestoneEditor rows={form.milestones} onChange={(rows) => set("milestones", rows)} />}
           <RiskEditor rows={form.risks} onChange={(rows) => set("risks", rows)} />
-          <NextWeekPlanEditor rows={form.nextWeekPlans} onChange={(rows) => set("nextWeekPlans", rows)} />
+          {!hideManagerFields && <NextWeekPlanEditor rows={form.nextWeekPlans} onChange={(rows) => set("nextWeekPlans", rows)} />}
         </>
       )}
       <FileStager files={pendingFiles} onChange={setPendingFiles} />
 
-      <RichTextEditor label="Team Summary" value={form.teamSummary} onChange={(v) => set("teamSummary", v)} />
+      {!hideManagerFields && <RichTextEditor label="Team Summary" value={form.teamSummary} onChange={(v) => set("teamSummary", v)} />}
       <RichTextEditor label="Opportunities" value={form.opportunities} onChange={(v) => set("opportunities", v)} />
 
       {isSummaryWeekly && <SummaryWeeklyReport weekStart={form.weekStart} weekEnd={form.weekEnd} eeNorm={eeNorm} />}
@@ -487,7 +489,11 @@ function RiskEditor({ rows, onChange }: { rows: RiskInput[]; onChange: (rows: Ri
   );
 }
 
-function GroupsEditor({ rows, onChange }: { rows: MeetingGroupInput[]; onChange: (rows: MeetingGroupInput[]) => void }) {
+function GroupsEditor({ rows, onChange, hideMilestonesAndNextWeekPlans }: {
+  rows: MeetingGroupInput[];
+  onChange: (rows: MeetingGroupInput[]) => void;
+  hideMilestonesAndNextWeekPlans: boolean;
+}) {
   const [collapsed, setCollapsed] = useState<Set<number>>(new Set());
   const emptyGroup: MeetingGroupInput = { name: "", status: MILESTONE_STATUSES[0], progressNote: "", milestones: [], risks: [], nextWeekPlans: [] };
   function update(i: number, patch: Partial<MeetingGroupInput>) {
@@ -557,24 +563,28 @@ function GroupsEditor({ rows, onChange }: { rows: MeetingGroupInput[]; onChange:
                       onChange={(e) => update(i, { progressNote: e.target.value })}
                     />
                   </div>
-                  <div>
-                    <div className="rounded bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-700">2. Milestone</div>
-                    <div className="mt-2">
-                      <MilestoneTable rows={group.milestones} onChange={(milestones) => update(i, { milestones })} />
+                  {!hideMilestonesAndNextWeekPlans && (
+                    <div>
+                      <div className="rounded bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-700">2. Milestone</div>
+                      <div className="mt-2">
+                        <MilestoneTable rows={group.milestones} onChange={(milestones) => update(i, { milestones })} />
+                      </div>
                     </div>
-                  </div>
+                  )}
                   <div>
-                    <div className="rounded bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-700">3. Risk / Issue</div>
+                    <div className="rounded bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-700">{hideMilestonesAndNextWeekPlans ? "2" : "3"}. Risk / Issue</div>
                     <div className="mt-2">
                       <RiskTable rows={group.risks} onChange={(risks) => update(i, { risks })} />
                     </div>
                   </div>
-                  <div>
-                    <div className="rounded bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-700">4. Next Week Plan</div>
-                    <div className="mt-2">
-                      <NextWeekPlanTable rows={group.nextWeekPlans} onChange={(nextWeekPlans) => update(i, { nextWeekPlans })} />
+                  {!hideMilestonesAndNextWeekPlans && (
+                    <div>
+                      <div className="rounded bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-700">4. Next Week Plan</div>
+                      <div className="mt-2">
+                        <NextWeekPlanTable rows={group.nextWeekPlans} onChange={(nextWeekPlans) => update(i, { nextWeekPlans })} />
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
             </div>
