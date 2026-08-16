@@ -1,0 +1,5 @@
+ALTER TABLE "Project" ADD COLUMN "repoProvider" TEXT;
+ALTER TABLE "Project" ADD COLUMN "repoUrl" TEXT;
+ALTER TABLE "Project" ADD COLUMN "pmTool" TEXT;
+ALTER TABLE "Project" ADD COLUMN "pmUrl" TEXT;
+ALTER TABLE "Project" ADD COLUMN "accessKey" TEXT;

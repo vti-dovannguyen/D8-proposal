@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm type-check)",
+      "Bash(npx tsc *)",
+      "Bash(npm test *)",
+      "mcp__claude-in-chrome__tabs_context_mcp",
+      "mcp__claude-in-chrome__navigate"
+    ]
+  },
+  "enabledPlugins": {
+    "claude-doc-genome@claude-doc-genome": true
+  }
+}

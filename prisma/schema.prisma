@@ -1,0 +1,662 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- NextAuth models ----------
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------- Domain models ----------
+model User {
+  id                 String              @id @default(cuid())
+  email              String              @unique
+  name               String
+  image              String?
+  emailVerified      DateTime?
+  role               Role                @default(MEMBER)
+  employeeType       EmployeeType        @default(OFFICIAL)
+  section            String?
+  title              String?
+  dateOfBirth        DateTime?
+  gender             String?
+  password           String?
+  createdAt          DateTime            @default(now())
+  accounts           Account[]
+  sessions           Session[]
+  meetings           Meeting[]
+  documents          Document[]
+  wikiPages          WikiPage[]
+  topics             Topic[]
+  comments           Comment[]
+  aiAgents           AIAgent[]
+  agentChatThreads   AgentChatThread[]
+  bookmarks          Bookmark[]
+  announcements      Announcement[]
+  issues             Issue[]
+  aiAccounts         AIAccount[]         @relation("AIAccountMembers")
+  aiAccountsOwned    AIAccount[]         @relation("AIAccountAssignedTo")
+  userSkills         UserSkill[]
+  certificates       UserCertificate[]
+  allocations        ProjectAllocation[]
+  projectKpis        ProjectKpi[]
+  pointAwards        PointAward[]        @relation("PointAwardTarget")
+  pointAwardsCreated PointAward[]        @relation("PointAwardCreatedBy")
+  picProjects        Project[]           @relation("ProjectPicPm")
+}
+
+enum Role {
+  ADMIN
+  DIVISION_LEADER
+  SECTION_MANAGER
+  PM
+  MEMBER
+}
+
+// Employee classification. Intern effort counts at half of an official member.
+enum EmployeeType {
+  OFFICIAL
+  INTERN
+}
+
+enum PointAwardType {
+  PERSON
+  PROJECT
+}
+
+model PointAward {
+  id          String         @id @default(cuid())
+  month       String // "YYYY-MM"
+  type        PointAwardType
+  userId      String?
+  user        User?          @relation("PointAwardTarget", fields: [userId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project?       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  points      Int
+  reason      String
+  imageUrl    String?
+  notified    Boolean        @default(false)
+  notifiedAt  DateTime?
+  createdById String
+  createdBy   User           @relation("PointAwardCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([month, userId])
+  @@unique([month, projectId])
+  @@index([month, type])
+}
+
+model Meeting {
+  id             String        @id @default(cuid())
+  week           String
+  weekRange      String
+  // Structured mirror of the Từ/Đến datetime-local inputs (weekRange stays the
+  // free-text label). Nullable since older rows predate this column; used to
+  // match meetings across sections for the SM-only "Summary Weekly" rollup.
+  weekStart      DateTime?
+  weekEnd        DateTime?
+  category       String        @default("Weekly")
+  // Project status shown on the create/edit form: "On Schedule" | "Late" | "Issues".
+  projectStatus  String        @default("On Schedule")
+  // Division-level EE percentage entered by non-PM roles; compared against
+  // the NORM env var on the detail page (red below, green at/above).
+  divisionEE     Float?
+  status         MeetingStatus @default(DRAFT)
+  section        String
+  ownerId        String
+  owner          User          @relation(fields: [ownerId], references: [id])
+  projectId      String?
+  project        Project?      @relation(fields: [projectId], references: [id])
+  execSummary    String?
+  teamSummary    String?
+  opportunities  String?
+  otherInfo      String?
+  additionalNote String?
+  eeRows         MeetingEE[]
+  raRows         MeetingRA[]
+  risks          Risk[]
+  milestones     Milestone[]
+  nextWeekPlans  NextWeekPlan[]
+  groups         MeetingGroup[]
+  divisionIssues Issue[]       @relation("DivisionIssues")
+  companyIssues  Issue[]       @relation("CompanyIssues")
+  attachments    Attachment[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+enum MeetingStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+model MeetingEE {
+  id        String  @id @default(cuid())
+  meetingId String
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  project   String
+  plan      Int
+  actual    Int
+  note      String?
+}
+
+model Project {
+  id               String                 @id @default(cuid())
+  name             String
+  code             String?                @unique
+  category         String
+  section          String
+  active           Boolean                @default(true)
+  description      String?
+  // PIC PM: the members who own/lead this project. Many-to-many — a project
+  // can have several PICs, and a member can be PIC for many projects.
+  picPms           User[]                 @relation("ProjectPicPm")
+  startDate        DateTime?
+  endDate          DateTime?
+  budgetedEffortMM Float?
+  // Source-code hosting: provider ("github" | "gitlab") + repo URL.
+  repoProvider     String?
+  repoUrl          String?
+  // Project management tool: ("redmine" | "backlog") + project URL.
+  pmTool           String?
+  pmUrl            String?
+  // Sensitive: API/access token used by AI MCP health checks. Write-only in the
+  // UI — never serialized back to the client.
+  accessKey        String?
+  serverInfo       String?
+  // When true, the Weekly Report create/edit form replaces the flat
+  // Milestone/Issues-Risks sections with a per-sub-project "CHI TIẾT THEO
+  // NHÓM / SUB-PROJECT" group editor (see meeting-form.tsx#GroupsEditor).
+  hasSubProjects   Boolean                @default(false)
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  allocations      ProjectAllocation[]
+  environments     ProjectEnvironment[]
+  monthlyDetails   ProjectMonthlyDetail[]
+  kpis             ProjectKpi[]
+  pointAwards      PointAward[]
+  meetings         Meeting[]
+
+  @@unique([name, section])
+}
+
+model MeetingRA {
+  id        String  @id @default(cuid())
+  meetingId String
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  name      String
+  project   String
+  from      String
+  effort    String
+  status    String
+}
+
+// Issues/Risks row: "type" distinguishes an Issue from a Risk, "impact" is
+// shown in the UI as Priority, "actionPlan" as Mitigation/Action. Belongs
+// either directly to a Meeting (flat form) or to one of its MeetingGroups
+// (per-sub-project form) — never both.
+model Risk {
+  id         String        @id @default(cuid())
+  // Exactly one of meetingId/groupId is set: a flat row belongs directly to
+  // the Meeting; a per-sub-project row belongs to a MeetingGroup instead
+  // (both nullable so nested creates under MeetingGroup.create don't need an
+  // as-yet-unknown meetingId).
+  meetingId  String?
+  meeting    Meeting?      @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  groupId    String?
+  group      MeetingGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  type       String        @default("Issue")
+  title      String
+  impact     Severity      @default(MEDIUM)
+  actionPlan String?
+  status     String        @default("Open")
+  planDate   DateTime?
+
+  @@index([groupId])
+}
+
+// Exactly one of meetingId/groupId is set — see Risk above for why both are nullable.
+model Milestone {
+  id        String        @id @default(cuid())
+  meetingId String?
+  meeting   Meeting?      @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  groupId   String?
+  group     MeetingGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  name      String
+  planDate  DateTime?
+  status    String        @default("Not Started")
+  note      String?
+
+  @@index([groupId])
+}
+
+// Exactly one of meetingId/groupId is set — see Risk above for why both are nullable.
+model NextWeekPlan {
+  id          String        @id @default(cuid())
+  meetingId   String?
+  meeting     Meeting?      @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  groupId     String?
+  group       MeetingGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  keyActivity String
+  note        String?
+
+  @@index([groupId])
+}
+
+/**
+ * A sub-project group on the Weekly Report form ("CHI TIẾT THEO NHÓM /
+ * SUB-PROJECT"), used only when the meeting's project has
+ * `Project.hasSubProjects = true`. Each group carries its own progress note,
+ * milestones, issues/risks, and next-week plan — replacing the meeting-level
+ * Milestone/Risk/NextWeekPlan sections for that report.
+ */
+model MeetingGroup {
+  id            String         @id @default(cuid())
+  meetingId     String
+  meeting       Meeting        @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  name          String
+  status        String         @default("On Track")
+  progressNote  String?
+  order         Int            @default(0)
+  milestones    Milestone[]
+  risks         Risk[]
+  nextWeekPlans NextWeekPlan[]
+
+  @@index([meetingId])
+}
+
+model Issue {
+  id               String    @id @default(cuid())
+  title            String
+  severity         Severity  @default(MEDIUM)
+  status           String    @default("open")
+  ownerId          String
+  owner            User      @relation(fields: [ownerId], references: [id])
+  divisionMeetings Meeting[] @relation("DivisionIssues")
+  companyMeetings  Meeting[] @relation("CompanyIssues")
+  createdAt        DateTime  @default(now())
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  title     String
+  category  String
+  project   String?
+  fileUrl   String
+  fileSize  Int
+  mimeType  String
+  version   Int      @default(1)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  tags      Tag[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WikiPage {
+  id        String        @id @default(cuid())
+  title     String
+  content   String
+  category  String
+  project   String?
+  authorId  String
+  author    User          @relation(fields: [authorId], references: [id])
+  tags      Tag[]
+  versions  WikiVersion[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model WikiVersion {
+  id         String   @id @default(cuid())
+  wikiPageId String
+  wikiPage   WikiPage @relation(fields: [wikiPageId], references: [id], onDelete: Cascade)
+  content    String
+  version    Int
+  createdAt  DateTime @default(now())
+}
+
+model Topic {
+  id        String     @id @default(cuid())
+  title     String
+  content   String
+  category  String
+  project   String?
+  authorId  String
+  author    User       @relation(fields: [authorId], references: [id])
+  comments  Comment[]
+  tags      Tag[]
+  likes     Int        @default(0)
+  bookmarks Bookmark[]
+  pinned    Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  topicId   String
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model AIAgent {
+  id          String            @id @default(cuid())
+  name        String
+  description String
+  useCase     String
+  prompt      String
+  category    String
+  ownerId     String
+  owner       User              @relation(fields: [ownerId], references: [id])
+  rating      Float             @default(0)
+  ratingCount Int               @default(0)
+  favorites   Bookmark[]
+  chatThreads AgentChatThread[]
+  createdAt   DateTime          @default(now())
+}
+
+model AgentChatThread {
+  id        String             @id @default(cuid())
+  title     String
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agentId   String
+  agent     AIAgent            @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  messages  AgentChatMessage[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([userId, agentId, updatedAt])
+}
+
+model AgentChatMessage {
+  id        String          @id @default(cuid())
+  threadId  String
+  thread    AgentChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  role      AgentChatRole
+  content   String
+  createdAt DateTime        @default(now())
+
+  @@index([threadId, createdAt])
+}
+
+enum AgentChatRole {
+  USER
+  ASSISTANT
+}
+
+model AIAccount {
+  id               String    @id @default(cuid())
+  // No longer globally unique: the same email may be issued to several
+  // projects (one AIAccount row per email+project pair). Duplicate
+  // email+project combinations are rejected at the application level
+  // (see actions.ts#assertNoDuplicateForProject) rather than by a DB
+  // constraint, since `project` is nullable free text, not a relation.
+  email            String
+  provider         String
+  accountType      String
+  project          String?
+  // Single person accountable for this account (separate from `members`,
+  // who merely have access to it).
+  assignedToId     String?
+  assignedTo       User?     @relation("AIAccountAssignedTo", fields: [assignedToId], references: [id])
+  purchaseDate     DateTime?
+  cost             Float?
+  currency         String    @default("USD")
+  subscriptionType String
+  status           String    @default("ACTIVE")
+  notes            String?
+  members          User[]    @relation("AIAccountMembers")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([email])
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  body      String // sanitized rich-text HTML
+  pinned    Boolean  @default(false)
+  active    Boolean  @default(true)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([active, pinned, createdAt])
+}
+
+model Bookmark {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  targetType String
+  targetId   String
+  topic      Topic?   @relation(fields: [topicId], references: [id])
+  topicId    String?
+  agent      AIAgent? @relation(fields: [agentId], references: [id])
+  agentId    String?
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, targetType, targetId])
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  meetingId String
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  fileName  String
+  fileUrl   String
+  fileSize  Int
+  createdAt DateTime @default(now())
+}
+
+model Tag {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  documents Document[]
+  wikiPages WikiPage[]
+  topics    Topic[]
+}
+
+model MasterCategory {
+  id        String   @id @default(cuid())
+  type      String
+  value     String
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([type, value])
+  @@index([type, active, order])
+}
+
+model Skill {
+  id          String              @id @default(cuid())
+  name        String              @unique
+  category    String?
+  active      Boolean             @default(true)
+  userSkills  UserSkill[]
+  allocations ProjectAllocation[]
+  createdAt   DateTime            @default(now())
+}
+
+model UserSkill {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skillId String
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  level   Int    @default(1)
+
+  @@unique([userId, skillId])
+}
+
+model CertificateType {
+  id           String            @id @default(cuid())
+  name         String            @unique
+  issuer       String?
+  category     String?
+  active       Boolean           @default(true)
+  certificates UserCertificate[]
+  createdAt    DateTime          @default(now())
+}
+
+model UserCertificate {
+  id           String          @id @default(cuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  typeId       String
+  type         CertificateType @relation(fields: [typeId], references: [id])
+  issuer       String?
+  issuedAt     DateTime?
+  expiresAt    DateTime?
+  credentialId String?
+  fileUrl      String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([userId])
+}
+
+/**
+ * A member awarded a KPI of a given type for one month on one project
+ * ("KPI Loại A"). Several members can be awarded in the same month; `note` is
+ * an optional free-text reason. `kpiType` is only ever "A" today — the column
+ * exists so adding loại B/C later needs no migration.
+ */
+model ProjectKpi {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  month     String
+  kpiType   String   @default("A")
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@unique([projectId, month, kpiType, userId])
+  @@index([projectId])
+  @@index([month])
+}
+
+model ProjectAllocation {
+  id             String   @id @default(cuid())
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
+  role           String
+  skillId        String?
+  skill          Skill?   @relation(fields: [skillId], references: [id])
+  hoursPerDay    Float
+  gitAccount     String?
+  backlogAccount String?
+  twoFA          Boolean  @default(false)
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  @@index([projectId])
+}
+
+model ProjectEnvironment {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name      String
+  url       String?
+  username  String?
+  password  String?
+  note      String?
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+model ProjectMonthlyDetail {
+  id                   String   @id @default(cuid())
+  projectId            String
+  project              Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  month                String // "YYYY-MM", e.g. "2026-01"
+  billableProject      Float    @default(0)
+  billableDevelop      Float    @default(0)
+  warrantyEffort       Float    @default(0)
+  calendarMember       Float    @default(0)
+  calendarIntern       Float    @default(0)
+  calendarCollaborator Float    @default(0)
+  otMemberEffort       Float    @default(0)
+  otInternEffort       Float    @default(0)
+  otCollaboratorEffort Float    @default(0)
+  absent               Float    @default(0)
+  eeToMonth            Float    @default(0) // "EE To Month (%)" — manual entry
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@unique([projectId, month])
+  @@index([projectId])
+}
+
+model UnitMonthly {
+  id        String   @id @default(cuid())
+  month     String   @unique // "YYYY-MM"
+  lbQaOt    Int      @default(0)
+  intern    Int      @default(0)
+  official  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
