@@ -1,0 +1,1 @@
+ALTER TABLE "Risk" ADD COLUMN "notes" TEXT;

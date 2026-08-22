@@ -12,7 +12,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { canEditMeeting, eeTotals, formatDateOnlyRange, getEeNorm, milestoneStatusClass, projectStatusClass, SUMMARY_WEEKLY_CATEGORY } from "@/lib/meetings";
+import { canDeleteMeeting, canEditMeeting, eeTotals, formatDateOnlyRange, getEeNorm, milestoneStatusClass, projectStatusClass, SUMMARY_WEEKLY_CATEGORY } from "@/lib/meetings";
 import { canManagePmMeeting } from "@/lib/projects";
 import { shouldHideWeeklyReportFields } from "@/lib/permissions";
 import { canManageMeetingComments } from "@/lib/meeting-comments";
@@ -127,7 +127,7 @@ function RichHtml({ html }: { html?: string | null }) {
 }
 
 type MilestoneRow = { id: string; name: string; planDate: Date | null; status: string; note: string | null };
-type RiskRow = { id: string; type: string; title: string; impact: IssueItem["severity"]; actionPlan: string | null; status: string; planDate: Date | null };
+type RiskRow = { id: string; type: string; title: string; impact: IssueItem["severity"]; actionPlan: string | null; notes: string | null; status: string; planDate: Date | null };
 
 function MilestoneTable({ rows }: { rows: MilestoneRow[] }) {
   if (rows.length === 0) return <p className="text-sm text-slate-400">Không có milestone.</p>;
@@ -167,7 +167,7 @@ function RiskTable({ rows }: { rows: RiskRow[] }) {
             <th>Type</th>
             <th>Title</th>
             <th>Priority</th>
-            <th>Mitigation / Action</th>
+            <th>Mitigation / Action &amp; Notes</th>
             <th>Status</th>
             <th>Plan Date</th>
           </tr>
@@ -178,7 +178,10 @@ function RiskTable({ rows }: { rows: RiskRow[] }) {
               <td><span className="portal-pill bg-slate-100 text-slate-600">{risk.type}</span></td>
               <td className="font-semibold text-slate-950">{risk.title}</td>
               <td><span className={`portal-pill ${severityClass(risk.impact)}`}>{severityLabel(risk.impact)}</span></td>
-              <td className="portal-table-muted">{risk.actionPlan || "—"}</td>
+              <td className="portal-table-muted">
+                <div>{risk.actionPlan || "—"}</div>
+                {risk.notes && <div className="mt-1 text-xs text-slate-500"><span className="font-semibold">Notes:</span> {risk.notes}</div>}
+              </td>
               <td><span className="portal-pill bg-amber-50 text-amber-700">{risk.status}</span></td>
               <td>{formatDateOnly(risk.planDate)}</td>
             </tr>
@@ -273,6 +276,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
   const hideManagerFields = shouldHideWeeklyReportFields(role);
   const canEditProject = role !== "PM" || canManagePmMeeting(session!.user.id, m.projectId, m.ownerId, m.project?.picPms ?? []);
   const editable = canEditMeeting(role, m.status) && canEditProject;
+  const deletable = canDeleteMeeting(role, session!.user.id, m.ownerId);
   const managerComments = m.managerComments.map((comment) => ({
     id: comment.id,
     content: comment.content,
@@ -342,7 +346,7 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
               Sửa
             </Link>
           )}
-          <MeetingButtons id={m.id} status={m.status} canEdit={editable} />
+          <MeetingButtons id={m.id} status={m.status} canEdit={editable} canDelete={deletable} />
         </div>
       </div>
 

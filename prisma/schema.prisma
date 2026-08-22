@@ -252,6 +252,7 @@ model Risk {
   title      String
   impact     Severity      @default(MEDIUM)
   actionPlan String?
+  notes      String?
   status     String        @default("Open")
   planDate   DateTime?
 

@@ -3,12 +3,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const authMock = vi.fn();
 const createMock = vi.fn();
 const updateMock = vi.fn();
+const deleteMock = vi.fn();
 const findUniqueMock = vi.fn();
 const findManyMock = vi.fn();
 const projectFindUniqueMock = vi.fn();
 const projectFindManyMock = vi.fn();
 const attachmentCreate = vi.fn();
 const uploadAttachmentFileMock = vi.fn();
+const removeFromBucketMock = vi.fn();
 const sendMeetingNotifMock = vi.fn();
 
 vi.mock("@/lib/auth", () => ({ auth: () => authMock() }));
@@ -19,6 +21,7 @@ vi.mock("@/lib/db", () => ({
     meeting: {
       create: (...a: unknown[]) => createMock(...a),
       update: (...a: unknown[]) => updateMock(...a),
+      delete: (...a: unknown[]) => deleteMock(...a),
       findUnique: (...a: unknown[]) => findUniqueMock(...a),
       findMany: (...a: unknown[]) => findManyMock(...a),
     },
@@ -40,13 +43,14 @@ vi.mock("@/lib/storage", async (importOriginal) => {
     ...actual,
     uploadToBucket: vi.fn(),
     uploadAttachmentFile: (...a: unknown[]) => uploadAttachmentFileMock(...a),
+    removeFromBucket: (...a: unknown[]) => removeFromBucketMock(...a),
   };
 });
 vi.mock("@/lib/google-chat", () => ({
   sendMeetingReportNotification: (...a: unknown[]) => sendMeetingNotifMock(...a),
 }));
 
-import { createMeeting, updateMeeting, cloneMeeting, closeMeeting, uploadAttachment, getWeeklySummaryReport } from "../src/app/(portal)/meetings/actions";
+import { createMeeting, updateMeeting, cloneMeeting, deleteMeeting, closeMeeting, uploadAttachment, getWeeklySummaryReport } from "../src/app/(portal)/meetings/actions";
 import type { MeetingFormData } from "@/types/meeting";
 
 const validForm: MeetingFormData = {
@@ -60,12 +64,14 @@ beforeEach(() => {
   authMock.mockReset();
   createMock.mockReset();
   updateMock.mockReset();
+  deleteMock.mockReset();
   findUniqueMock.mockReset();
   findManyMock.mockReset();
   projectFindUniqueMock.mockReset();
   projectFindManyMock.mockReset();
   attachmentCreate.mockReset();
   uploadAttachmentFileMock.mockReset();
+  removeFromBucketMock.mockReset();
   createMock.mockResolvedValue({ id: "new1" });
   uploadAttachmentFileMock.mockResolvedValue(undefined);
   sendMeetingNotifMock.mockReset();
@@ -202,6 +208,37 @@ describe("cloneMeeting", () => {
     expect(arg.data.status).toBe("DRAFT");
     expect(arg.data.ownerId).toBe("u3");
   });
+  it("copies risk notes and notifies Google Chat about the new report", async () => {
+    const realAppUrl = process.env.APP_URL;
+    process.env.APP_URL = "https://portal.example";
+    try {
+      authMock.mockResolvedValue({ user: { id: "u3", role: "PM", name: "Nguyen B" } });
+      findUniqueMock.mockResolvedValue({
+        id: "m1", week: "Tuan 24", weekRange: "08/06 - 12/06/2026", section: "D8.1", ownerId: "u3",
+        execSummary: "s", teamSummary: "t", opportunities: "o", otherInfo: "", additionalNote: "",
+        eeRows: [{ project: "Project A", plan: 1, actual: 1, note: "" }], raRows: [],
+        risks: [{ type: "Risk", title: "Delay", impact: "HIGH", actionPlan: "Mitigate", notes: "Customer informed", status: "Open", planDate: null, groupId: null }],
+        milestones: [], nextWeekPlans: [], groups: [],
+      });
+      createMock.mockResolvedValue({ id: "m2" });
+
+      await expect(cloneMeeting("m1")).rejects.toThrow("REDIRECT:/meetings/m2/edit");
+
+      const arg = createMock.mock.calls.at(-1)![0] as { data: { risks: { create: unknown[] } } };
+      expect(arg.data.risks.create).toEqual([
+        { type: "Risk", title: "Delay", impact: "HIGH", actionPlan: "Mitigate", notes: "Customer informed", status: "Open", planDate: null },
+      ]);
+      expect(sendMeetingNotifMock).toHaveBeenCalledWith({
+        pmName: "Nguyen B",
+        projects: ["Project A"],
+        section: "D8.1",
+        meetingUrl: "https://portal.example/meetings/m2",
+      });
+    } finally {
+      if (realAppUrl === undefined) delete process.env.APP_URL;
+      else process.env.APP_URL = realAppUrl;
+    }
+  });
   it("rejects a PM cloning a meeting tied to a project they are not PIC PM on", async () => {
     authMock.mockResolvedValue({ user: { id: "u3", role: "PM" } });
     findUniqueMock.mockResolvedValue({
@@ -222,6 +259,34 @@ describe("cloneMeeting", () => {
     });
     await expect(cloneMeeting("m1")).rejects.toThrow("Forbidden");
     expect(createMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("deleteMeeting", () => {
+  it("lets a PM delete a report they created, including a CLOSED report", async () => {
+    authMock.mockResolvedValue({ user: { id: "u3", role: "PM" } });
+    findUniqueMock.mockResolvedValue({ id: "m1", ownerId: "u3", status: "CLOSED", attachments: [{ fileUrl: "m1/report.pdf" }] });
+    await expect(deleteMeeting("m1")).rejects.toThrow("REDIRECT:/meetings");
+    expect(deleteMock).toHaveBeenCalledWith({ where: { id: "m1" } });
+    expect(removeFromBucketMock).toHaveBeenCalledWith("m1/report.pdf");
+  });
+
+  it("rejects a PM deleting another user's report", async () => {
+    authMock.mockResolvedValue({ user: { id: "u3", role: "PM" } });
+    findUniqueMock.mockResolvedValue({ id: "m1", ownerId: "u4", status: "DRAFT" });
+    await expect(deleteMeeting("m1")).rejects.toThrow("Forbidden");
+    expect(deleteMock).not.toHaveBeenCalled();
+  });
+
+  it("lets a manager delete any report and rejects a Member", async () => {
+    authMock.mockResolvedValue({ user: { id: "manager", role: "SECTION_MANAGER" } });
+    findUniqueMock.mockResolvedValue({ id: "m1", ownerId: "u3", status: "OPEN" });
+    await expect(deleteMeeting("m1")).rejects.toThrow("REDIRECT:/meetings");
+    expect(deleteMock).toHaveBeenCalledTimes(1);
+
+    authMock.mockResolvedValue({ user: { id: "member", role: "MEMBER" } });
+    await expect(deleteMeeting("m2")).rejects.toThrow("Forbidden");
+    expect(deleteMock).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -308,12 +373,12 @@ describe("createMeeting risks", () => {
   it("persists risk rows alongside the meeting", async () => {
     authMock.mockResolvedValue({ user: { id: "u3", role: "PM" } });
     const risks = [
-      { type: "Issue", title: "Vendor delay", impact: "HIGH" as const, actionPlan: "a", status: "Open", planDate: "2026-08-16" },
+      { type: "Issue", title: "Vendor delay", impact: "HIGH" as const, actionPlan: "a", notes: "Follow up daily", status: "Open", planDate: "2026-08-16" },
     ];
     await expect(createMeeting({ ...validForm, risks })).rejects.toThrow("REDIRECT:/meetings/new1");
     const arg = createMock.mock.calls[0][0] as { data: { risks: { create: unknown[] } } };
     expect(arg.data.risks.create).toEqual([
-      { type: "Issue", title: "Vendor delay", impact: "HIGH", actionPlan: "a", status: "Open", planDate: new Date("2026-08-16") },
+      { type: "Issue", title: "Vendor delay", impact: "HIGH", actionPlan: "a", notes: "Follow up daily", status: "Open", planDate: new Date("2026-08-16") },
     ]);
   });
 });
@@ -327,7 +392,7 @@ describe("createMeeting groups", () => {
         status: "At Risk",
         progressNote: "Sprint 3 done",
         milestones: [{ name: "UAT Complete", planDate: "2026-08-16", status: "At Risk", note: "Delay" }],
-        risks: [{ type: "Issue", title: "Thiếu tài nguyên QA", impact: "HIGH" as const, actionPlan: "Bổ sung QA", status: "Open", planDate: "2026-08-09" }],
+        risks: [{ type: "Issue", title: "Thiếu tài nguyên QA", impact: "HIGH" as const, actionPlan: "Bổ sung QA", notes: "", status: "Open", planDate: "2026-08-09" }],
         nextWeekPlans: [{ keyActivity: "Hoàn thành UAT", note: "UAT Sign-off" }],
       },
     ];
@@ -349,7 +414,7 @@ describe("createMeeting groups", () => {
         progressNote: "Sprint 3 done",
         order: 0,
         milestones: { create: [{ name: "UAT Complete", planDate: new Date("2026-08-16"), status: "At Risk", note: "Delay" }] },
-        risks: { create: [{ type: "Issue", title: "Thiếu tài nguyên QA", impact: "HIGH", actionPlan: "Bổ sung QA", status: "Open", planDate: new Date("2026-08-09") }] },
+        risks: { create: [{ type: "Issue", title: "Thiếu tài nguyên QA", impact: "HIGH", actionPlan: "Bổ sung QA", notes: "", status: "Open", planDate: new Date("2026-08-09") }] },
         nextWeekPlans: { create: [{ keyActivity: "Hoàn thành UAT", note: "UAT Sign-off" }] },
       },
     ]);
@@ -391,13 +456,13 @@ describe("updateMeeting risks", () => {
     authMock.mockResolvedValue({ user: { id: "u3", role: "PM" } });
     findUniqueMock.mockResolvedValue({ id: "m1", status: "OPEN", ownerId: "u3" });
     const risks = [
-      { type: "Issue", title: "Vendor delay", impact: "HIGH" as const, actionPlan: "a", status: "Open", planDate: "2026-08-16" },
+      { type: "Issue", title: "Vendor delay", impact: "HIGH" as const, actionPlan: "a", notes: "Waiting for ETA", status: "Open", planDate: "2026-08-16" },
     ];
     await expect(updateMeeting("m1", { ...validForm, risks })).rejects.toThrow("REDIRECT:/meetings/m1");
     const arg = updateMock.mock.calls[0][0] as { data: { risks: { deleteMany: unknown; create: unknown[] } } };
     expect(arg.data.risks).toEqual({
       deleteMany: {},
-      create: [{ type: "Issue", title: "Vendor delay", impact: "HIGH", actionPlan: "a", status: "Open", planDate: new Date("2026-08-16") }],
+      create: [{ type: "Issue", title: "Vendor delay", impact: "HIGH", actionPlan: "a", notes: "Waiting for ETA", status: "Open", planDate: new Date("2026-08-16") }],
     });
   });
 });

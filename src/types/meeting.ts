@@ -10,6 +10,7 @@ export type RiskInput = {
   title: string;
   impact: Severity;
   actionPlan: string;
+  notes: string;
   status: string;
   planDate: string; // "YYYY-MM-DD" or ""
 };
