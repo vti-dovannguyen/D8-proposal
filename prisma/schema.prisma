@@ -47,40 +47,42 @@ model VerificationToken {
 
 // ---------- Domain models ----------
 model User {
-  id                 String              @id @default(cuid())
-  email              String              @unique
-  name               String
-  image              String?
-  emailVerified      DateTime?
-  role               Role                @default(MEMBER)
-  employeeType       EmployeeType        @default(OFFICIAL)
-  section            String?
-  title              String?
-  dateOfBirth        DateTime?
-  gender             String?
-  password           String?
-  createdAt          DateTime            @default(now())
-  accounts           Account[]
-  sessions           Session[]
-  meetings           Meeting[]
-  documents          Document[]
-  wikiPages          WikiPage[]
-  topics             Topic[]
-  comments           Comment[]
-  aiAgents           AIAgent[]
-  agentChatThreads   AgentChatThread[]
-  bookmarks          Bookmark[]
-  announcements      Announcement[]
-  issues             Issue[]
-  aiAccounts         AIAccount[]         @relation("AIAccountMembers")
-  aiAccountsOwned    AIAccount[]         @relation("AIAccountAssignedTo")
-  userSkills         UserSkill[]
-  certificates       UserCertificate[]
-  allocations        ProjectAllocation[]
-  projectKpis        ProjectKpi[]
-  pointAwards        PointAward[]        @relation("PointAwardTarget")
-  pointAwardsCreated PointAward[]        @relation("PointAwardCreatedBy")
-  picProjects        Project[]           @relation("ProjectPicPm")
+  id                      String                   @id @default(cuid())
+  email                   String                   @unique
+  name                    String
+  image                   String?
+  emailVerified           DateTime?
+  role                    Role                     @default(MEMBER)
+  employeeType            EmployeeType             @default(OFFICIAL)
+  section                 String?
+  title                   String?
+  dateOfBirth             DateTime?
+  gender                  String?
+  password                String?
+  createdAt               DateTime                 @default(now())
+  accounts                Account[]
+  sessions                Session[]
+  meetings                Meeting[]
+  meetingComments         MeetingComment[]
+  meetingCommentReactions MeetingCommentReaction[]
+  documents               Document[]
+  wikiPages               WikiPage[]
+  topics                  Topic[]
+  comments                Comment[]
+  aiAgents                AIAgent[]
+  agentChatThreads        AgentChatThread[]
+  bookmarks               Bookmark[]
+  announcements           Announcement[]
+  issues                  Issue[]
+  aiAccounts              AIAccount[]              @relation("AIAccountMembers")
+  aiAccountsOwned         AIAccount[]              @relation("AIAccountAssignedTo")
+  userSkills              UserSkill[]
+  certificates            UserCertificate[]
+  allocations             ProjectAllocation[]
+  projectKpis             ProjectKpi[]
+  pointAwards             PointAward[]             @relation("PointAwardTarget")
+  pointAwardsCreated      PointAward[]             @relation("PointAwardCreatedBy")
+  picProjects             Project[]                @relation("ProjectPicPm")
 }
 
 enum Role {
@@ -126,42 +128,43 @@ model PointAward {
 }
 
 model Meeting {
-  id             String        @id @default(cuid())
-  week           String
-  weekRange      String
+  id              String           @id @default(cuid())
+  week            String
+  weekRange       String
   // Structured mirror of the Từ/Đến datetime-local inputs (weekRange stays the
   // free-text label). Nullable since older rows predate this column; used to
   // match meetings across sections for the SM-only "Summary Weekly" rollup.
-  weekStart      DateTime?
-  weekEnd        DateTime?
-  category       String        @default("Weekly")
+  weekStart       DateTime?
+  weekEnd         DateTime?
+  category        String           @default("Weekly")
   // Project status shown on the create/edit form: "On Schedule" | "Late" | "Issues".
-  projectStatus  String        @default("On Schedule")
+  projectStatus   String           @default("On Schedule")
   // Division-level EE percentage entered by non-PM roles; compared against
   // the NORM env var on the detail page (red below, green at/above).
-  divisionEE     Float?
-  status         MeetingStatus @default(DRAFT)
-  section        String
-  ownerId        String
-  owner          User          @relation(fields: [ownerId], references: [id])
-  projectId      String?
-  project        Project?      @relation(fields: [projectId], references: [id])
-  execSummary    String?
-  teamSummary    String?
-  opportunities  String?
-  otherInfo      String?
-  additionalNote String?
-  eeRows         MeetingEE[]
-  raRows         MeetingRA[]
-  risks          Risk[]
-  milestones     Milestone[]
-  nextWeekPlans  NextWeekPlan[]
-  groups         MeetingGroup[]
-  divisionIssues Issue[]       @relation("DivisionIssues")
-  companyIssues  Issue[]       @relation("CompanyIssues")
-  attachments    Attachment[]
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  divisionEE      Float?
+  status          MeetingStatus    @default(DRAFT)
+  section         String
+  ownerId         String
+  owner           User             @relation(fields: [ownerId], references: [id])
+  projectId       String?
+  project         Project?         @relation(fields: [projectId], references: [id])
+  execSummary     String?
+  teamSummary     String?
+  opportunities   String?
+  otherInfo       String?
+  additionalNote  String?
+  eeRows          MeetingEE[]
+  raRows          MeetingRA[]
+  risks           Risk[]
+  milestones      Milestone[]
+  nextWeekPlans   NextWeekPlan[]
+  groups          MeetingGroup[]
+  divisionIssues  Issue[]          @relation("DivisionIssues")
+  companyIssues   Issue[]          @relation("CompanyIssues")
+  attachments     Attachment[]
+  managerComments MeetingComment[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 }
 
 enum MeetingStatus {
@@ -388,6 +391,40 @@ model Comment {
   authorId  String
   author    User     @relation(fields: [authorId], references: [id])
   createdAt DateTime @default(now())
+}
+
+enum MeetingCommentReactionValue {
+  LIKE
+  UNLIKE
+}
+
+model MeetingComment {
+  id        String                   @id @default(cuid())
+  content   String
+  meetingId String
+  meeting   Meeting                  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User                     @relation(fields: [authorId], references: [id])
+  reactions MeetingCommentReaction[]
+  createdAt DateTime                 @default(now())
+  updatedAt DateTime                 @updatedAt
+  editedAt  DateTime?
+
+  @@index([meetingId, createdAt])
+}
+
+model MeetingCommentReaction {
+  id        String                      @id @default(cuid())
+  commentId String
+  comment   MeetingComment              @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User                        @relation(fields: [userId], references: [id])
+  value     MeetingCommentReactionValue
+  createdAt DateTime                    @default(now())
+  updatedAt DateTime                    @updatedAt
+
+  @@unique([commentId, userId])
+  @@index([userId])
 }
 
 model AIAgent {

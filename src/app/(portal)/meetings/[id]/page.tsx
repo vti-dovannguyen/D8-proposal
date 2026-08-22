@@ -15,12 +15,14 @@ import { db } from "@/lib/db";
 import { canEditMeeting, eeTotals, formatDateOnlyRange, getEeNorm, milestoneStatusClass, projectStatusClass, SUMMARY_WEEKLY_CATEGORY } from "@/lib/meetings";
 import { canManagePmMeeting } from "@/lib/projects";
 import { shouldHideWeeklyReportFields } from "@/lib/permissions";
+import { canManageMeetingComments } from "@/lib/meeting-comments";
 import { sanitizeMeetingRichTextHtml } from "@/lib/sanitize";
 import { MeetingButtons } from "./meeting-buttons";
 import { SummaryWeeklyReport } from "../summary-weekly-report";
 import { queryWeeklySummaryReport } from "@/lib/weekly-summary-report";
 import { buildWeeklySummaryMarkdown } from "@/lib/weekly-summary-export";
 import { ExportMarkdownButton } from "@/components/ui/export-markdown-button";
+import { MeetingComments } from "./meeting-comments";
 
 type IssueItem = {
   id: string;
@@ -253,6 +255,13 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
       groups: { orderBy: { order: "asc" }, include: { milestones: true, risks: true, nextWeekPlans: true } },
       divisionIssues: { include: { owner: true } },
       companyIssues: { include: { owner: true } },
+      managerComments: {
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+        include: {
+          author: { select: { name: true } },
+          reactions: { select: { userId: true, value: true } },
+        },
+      },
     },
   });
   if (!m) notFound();
@@ -264,6 +273,16 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
   const hideManagerFields = shouldHideWeeklyReportFields(role);
   const canEditProject = role !== "PM" || canManagePmMeeting(session!.user.id, m.projectId, m.ownerId, m.project?.picPms ?? []);
   const editable = canEditMeeting(role, m.status) && canEditProject;
+  const managerComments = m.managerComments.map((comment) => ({
+    id: comment.id,
+    content: comment.content,
+    authorName: comment.author.name,
+    createdAt: comment.createdAt.toISOString(),
+    editedAt: comment.editedAt?.toISOString() ?? null,
+    likeCount: comment.reactions.filter((reaction) => reaction.value === "LIKE").length,
+    unlikeCount: comment.reactions.filter((reaction) => reaction.value === "UNLIKE").length,
+    currentReaction: comment.reactions.find((reaction) => reaction.userId === session!.user.id)?.value ?? null,
+  }));
   const isSummaryWeekly = m.category === SUMMARY_WEEKLY_CATEGORY;
   const summaryGroups =
     isSummaryWeekly && m.weekStart && m.weekEnd
@@ -497,6 +516,12 @@ export default async function MeetingDetailPage({ params }: { params: Promise<{ 
           initialGroups={summaryGroups}
         />
       )}
+
+      <MeetingComments
+        meetingId={m.id}
+        comments={managerComments}
+        canManage={canManageMeetingComments(role)}
+      />
     </div>
   );
 }
