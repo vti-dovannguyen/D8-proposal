@@ -1,10 +1,10 @@
 "use client";
 
-import { Copy, Lock } from "lucide-react";
+import { Copy, Lock, Trash2 } from "lucide-react";
 import { useTransition } from "react";
-import { cloneMeeting, closeMeeting } from "../actions";
+import { cloneMeeting, closeMeeting, deleteMeeting } from "../actions";
 
-export function MeetingButtons({ id, status, canEdit }: { id: string; status: string; canEdit: boolean }) {
+export function MeetingButtons({ id, status, canEdit, canDelete }: { id: string; status: string; canEdit: boolean; canDelete: boolean }) {
   const [pending, start] = useTransition();
   return (
     <div className="flex gap-2">
@@ -26,6 +26,20 @@ export function MeetingButtons({ id, status, canEdit }: { id: string; status: st
         >
           <Lock size={15} />
           Close meeting
+        </button>
+      )}
+      {canDelete && (
+        <button
+          disabled={pending}
+          onClick={() => {
+            if (window.confirm("Xóa Weekly Report này? Hành động này không thể hoàn tác.")) {
+              start(() => deleteMeeting(id));
+            }
+          }}
+          className="inline-flex h-10 items-center gap-2 rounded-lg bg-red-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <Trash2 size={15} />
+          Xóa report
         </button>
       )}
     </div>

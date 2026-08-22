@@ -65,7 +65,7 @@ export default async function MeetingsPage({
         <div className="flex shrink-0 gap-3">
           <ReloadButton />
           {editable && (
-            <Link href="/meetings/new" className="rounded-lg bg-[var(--vti-deep,#0A3CA8)] px-4 py-2 text-sm font-semibold text-white shadow-sm">+ Tạo meeting mới</Link>
+            <Link href="/meetings/new" className="rounded-lg bg-[var(--vti-deep,#0A3CA8)] px-4 py-2 text-sm font-semibold text-white shadow-sm">+ Tạo Report mới</Link>
           )}
         </div>
       </div>

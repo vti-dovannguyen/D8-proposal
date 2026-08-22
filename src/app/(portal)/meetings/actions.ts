@@ -2,9 +2,9 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { can } from "@/lib/permissions";
-import { canEditMeeting, buildClonePayload, PROJECT_STATUSES } from "@/lib/meetings";
+import { canDeleteMeeting, canEditMeeting, buildClonePayload, PROJECT_STATUSES } from "@/lib/meetings";
 import { canManagePmMeeting } from "@/lib/projects";
-import { uploadAttachmentFile, assertUploadableFile } from "@/lib/storage";
+import { uploadAttachmentFile, assertUploadableFile, removeFromBucket } from "@/lib/storage";
 import { sanitizeMeetingRichTextHtml } from "@/lib/sanitize";
 import { fetchWeeklyTasks, isPmConfigured, toDateOnly } from "@/lib/pm-integrations";
 import {
@@ -83,6 +83,7 @@ function risksData(risks: RiskInput[]) {
     title: r.title,
     impact: r.impact,
     actionPlan: r.actionPlan,
+    notes: r.notes,
     status: r.status,
     planDate: parseDateOnly(r.planDate),
   }));
@@ -294,11 +295,12 @@ export async function cloneMeeting(id: string) {
   if (!source) throw new Error("Not found");
   await assertProjectAccess(user.role, user.id, source.projectId, source.ownerId);
 
-  const riskInput = (r: { type: string; title: string; impact: Severity; actionPlan: string | null; status: string; planDate: Date | null }): RiskInput => ({
+  const riskInput = (r: { type: string; title: string; impact: Severity; actionPlan: string | null; notes: string | null; status: string; planDate: Date | null }): RiskInput => ({
     type: r.type,
     title: r.title,
     impact: r.impact,
     actionPlan: r.actionPlan ?? "",
+    notes: r.notes ?? "",
     status: r.status,
     planDate: r.planDate ? r.planDate.toISOString().slice(0, 10) : "",
   });
@@ -348,8 +350,36 @@ export async function cloneMeeting(id: string) {
       groups: { create: groupsData(payload.groups) },
     },
   });
+  const projects = [...new Set(payload.eeRows.map((r) => r.project.trim()).filter(Boolean))];
+  await sendMeetingReportNotification({
+    pmName: user.name,
+    projects,
+    section: payload.section,
+    meetingUrl: process.env.APP_URL ? `${process.env.APP_URL}/meetings/${created.id}` : "",
+  });
   revalidatePath("/meetings");
   redirect(`/meetings/${created.id}/edit`);
+}
+
+export async function deleteMeeting(id: string) {
+  const user = await requireEditor();
+  const existing = await db.meeting.findUnique({
+    where: { id },
+    select: { ownerId: true, attachments: { select: { fileUrl: true } } },
+  });
+  if (!existing) throw new Error("Not found");
+  if (!canDeleteMeeting(user.role, user.id, existing.ownerId)) throw new Error("Forbidden");
+
+  await db.meeting.delete({ where: { id } });
+  for (const attachment of existing.attachments ?? []) {
+    try {
+      await removeFromBucket(attachment.fileUrl);
+    } catch (e) {
+      console.error("Failed to remove meeting attachment:", e);
+    }
+  }
+  revalidatePath("/meetings");
+  redirect("/meetings");
 }
 
 export type WeeklySyncResult = {

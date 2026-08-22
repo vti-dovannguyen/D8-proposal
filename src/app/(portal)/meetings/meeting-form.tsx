@@ -294,7 +294,7 @@ export function MeetingForm({
           title={!isValid ? "Vui lòng nhập đủ Tuần, Từ, Đến và Executive Summary." : undefined}
           className="rounded-lg bg-[var(--vti-deep,#0A3CA8)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
         >
-          {pending ? "Đang lưu..." : "Lưu meeting"}
+          {pending ? "Đang lưu..." : "Lưu report"}
         </button>
       </div>
     </form>
@@ -420,7 +420,7 @@ function MilestoneEditor({ rows, onChange }: { rows: MilestoneInput[]; onChange:
 }
 
 function RiskTable({ rows, onChange }: { rows: RiskInput[]; onChange: (rows: RiskInput[]) => void }) {
-  const emptyRisk: RiskInput = { type: RISK_TYPES[0], title: "", impact: "MEDIUM", actionPlan: "", status: RISK_STATUSES[0], planDate: "" };
+  const emptyRisk: RiskInput = { type: RISK_TYPES[0], title: "", impact: "MEDIUM", actionPlan: "", notes: "", status: RISK_STATUSES[0], planDate: "" };
   function update(i: number, patch: Partial<RiskInput>) {
     const next = rows.slice();
     next[i] = { ...next[i], ...patch };
@@ -435,7 +435,7 @@ function RiskTable({ rows, onChange }: { rows: RiskInput[]; onChange: (rows: Ris
               <th className="px-1 py-1">Type <span className="text-red-500">*</span></th>
               <th className="px-1 py-1">Title <span className="text-red-500">*</span></th>
               <th className="px-1 py-1">Priority <span className="text-red-500">*</span></th>
-              <th className="px-1 py-1">Mitigation / Action <span className="text-red-500">*</span></th>
+              <th className="px-1 py-1">Mitigation / Action &amp; Notes <span className="text-red-500">*</span></th>
               <th className="px-1 py-1">Status <span className="text-red-500">*</span></th>
               <th className="px-1 py-1">Plan Date <span className="text-red-500">*</span></th>
               <th className="w-8 px-1 py-1"></th>
@@ -455,7 +455,12 @@ function RiskTable({ rows, onChange }: { rows: RiskInput[]; onChange: (rows: Ris
                     {SEVERITIES.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </td>
-                <td className="p-1"><input className="w-full rounded border px-2 py-1" value={row.actionPlan} onChange={(e) => update(i, { actionPlan: e.target.value })} /></td>
+                <td className="min-w-52 p-1">
+                  <div className="space-y-1">
+                    <input className="w-full rounded border px-2 py-1" placeholder="Mitigation / Action" value={row.actionPlan} onChange={(e) => update(i, { actionPlan: e.target.value })} />
+                    <input className="w-full rounded border px-2 py-1 text-slate-600" placeholder="Notes" value={row.notes} onChange={(e) => update(i, { notes: e.target.value })} />
+                  </div>
+                </td>
                 <td className="p-1">
                   <select className="w-full rounded border px-2 py-1" value={row.status} onChange={(e) => update(i, { status: e.target.value })}>
                     {RISK_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}

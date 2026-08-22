@@ -71,6 +71,12 @@ export function canEditMeeting(role: Role, status: string): boolean {
   return status !== "CLOSED";
 }
 
+/** Managers may delete any report; a PM may delete only reports they created. */
+export function canDeleteMeeting(role: Role, userId: string, ownerId: string): boolean {
+  if (role === "PM") return userId === ownerId;
+  return role === "ADMIN" || role === "DIVISION_LEADER" || role === "SECTION_MANAGER";
+}
+
 export function eeTotals(rows: Array<Pick<EERow, "plan" | "actual"> & Partial<EERow>>): {
   plan: number; actual: number; variance: number;
 } {

@@ -1,10 +1,11 @@
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { canEditMeeting, getEeNorm } from "@/lib/meetings";
+import { canDeleteMeeting, canEditMeeting, getEeNorm } from "@/lib/meetings";
 import { canManagePmMeeting, projectVisibilityWhere } from "@/lib/projects";
 import { getCategoryMap } from "@/lib/master-data-db";
 import { MeetingForm } from "../../meeting-form";
+import { MeetingButtons } from "../meeting-buttons";
 import { updateMeeting } from "../../actions";
 import type { MeetingFormData } from "@/types/meeting";
 
@@ -44,6 +45,7 @@ export default async function EditMeetingPage({ params }: { params: Promise<{ id
     pmConfigured: Boolean(pmTool && pmUrl && accessKey),
   }));
   const { MEETING: categories, MEETING_SECTION: sections } = await getCategoryMap(["MEETING", "MEETING_SECTION"]);
+  const deletable = canDeleteMeeting(role, userId, m.ownerId);
 
   const initial: MeetingFormData = {
     week: m.week, weekRange: m.weekRange, section: m.section, category: m.category, projectStatus: m.projectStatus, divisionEE: m.divisionEE, status: m.status,
@@ -58,6 +60,7 @@ export default async function EditMeetingPage({ params }: { params: Promise<{ id
       title: r.title,
       impact: r.impact,
       actionPlan: r.actionPlan ?? "",
+      notes: r.notes ?? "",
       status: r.status,
       planDate: toDateInputValue(r.planDate),
     })),
@@ -83,6 +86,7 @@ export default async function EditMeetingPage({ params }: { params: Promise<{ id
         title: r.title,
         impact: r.impact,
         actionPlan: r.actionPlan ?? "",
+        notes: r.notes ?? "",
         status: r.status,
         planDate: toDateInputValue(r.planDate),
       })),
@@ -99,7 +103,10 @@ export default async function EditMeetingPage({ params }: { params: Promise<{ id
 
   return (
     <div className="space-y-4">
-      <h1 className="text-lg font-semibold text-slate-900">Sửa: {m.week}</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-lg font-semibold text-slate-900">Sửa: {m.week}</h1>
+        <MeetingButtons id={m.id} status={m.status} canEdit={false} canDelete={deletable} />
+      </div>
       <MeetingForm initial={initial} people={people} projects={projects} categories={categories} sections={sections} role={role} currentUserId={userId} onSubmit={action} eeNorm={getEeNorm()} />
     </div>
   );

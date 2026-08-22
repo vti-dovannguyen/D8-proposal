@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { canEditMeeting, eeTotals, buildClonePayload, formatDateOnlyRange, RISK_TYPES, RISK_STATUSES, PROJECT_STATUSES, EE_NORM_DEFAULT, getEeNorm } from "@/lib/meetings";
+import { canDeleteMeeting, canEditMeeting, eeTotals, buildClonePayload, formatDateOnlyRange, RISK_TYPES, RISK_STATUSES, PROJECT_STATUSES, EE_NORM_DEFAULT, getEeNorm } from "@/lib/meetings";
 
 describe("formatDateOnlyRange()", () => {
   it("formats a dd/MM/yyyy – dd/MM/yyyy range from weekStart/weekEnd, dropping the time", () => {
@@ -25,6 +25,23 @@ describe("canEditMeeting()", () => {
   it("never lets a Member edit", () => {
     expect(canEditMeeting("MEMBER", "DRAFT")).toBe(false);
     expect(canEditMeeting("MEMBER", "OPEN")).toBe(false);
+  });
+});
+
+describe("canDeleteMeeting()", () => {
+  it("lets a PM delete a report they created regardless of status", () => {
+    expect(canDeleteMeeting("PM", "pm-1", "pm-1")).toBe(true);
+  });
+
+  it("does not let a PM delete another user's report", () => {
+    expect(canDeleteMeeting("PM", "pm-1", "pm-2")).toBe(false);
+  });
+
+  it("lets managers delete any report and never lets a Member delete", () => {
+    for (const role of ["ADMIN", "DIVISION_LEADER", "SECTION_MANAGER"] as const) {
+      expect(canDeleteMeeting(role, "manager", "pm-1")).toBe(true);
+    }
+    expect(canDeleteMeeting("MEMBER", "member", "member")).toBe(false);
   });
 });
 
